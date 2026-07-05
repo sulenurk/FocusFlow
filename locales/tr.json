@@ -1,0 +1,77 @@
+{
+  "app_name": "FocusFlow",
+
+  "focus_timer": "Odak Sayacı",
+  "study_plan": "Çalışma Planı",
+  "regular_pomodoro": "Klasik Pomodoro",
+  "statistics": "İstatistikler",
+  "settings": "Ayarlar",
+  "language": "Dil",
+
+  "study_plan_title": "Çalışma Planı",
+  "study_plan_subtitle": "Görevlerini planla, odak bloklarını düzenle.",
+  "add_task": "Görev Ekle",
+  "add_new_task": "Yeni Görev Ekle",
+  "task_name": "Görev adı",
+  "subject": "Ders",
+  "focus_minutes": "Odak dk",
+  "break_minutes": "Mola dk",
+  "priority": "Öncelik",
+
+  "all_tasks": "Tüm Görevler",
+  "today": "Bugün",
+  "this_week": "Bu Hafta",
+  "completed": "Tamamlanan",
+
+  "math": "Matematik",
+  "physics": "Fizik",
+  "chemistry": "Kimya",
+  "turkish": "Türkçe",
+  "biology": "Biyoloji",
+  "history": "Tarih",
+  "geography": "Coğrafya",
+  "other": "Diğer",
+
+  "low": "Düşük",
+  "medium": "Orta",
+  "high": "Yüksek",
+
+  "focus_mode": "Odak Modu",
+  "paused": "Duraklatıldı",
+  "start": "Başlat",
+  "pause": "Duraklat",
+  "resume": "Devam Et",
+  "reset": "Sıfırla",
+  "away_message": "{minutes} dk'dır uzaktasın.",
+  "total_focus_today": "Bugünkü toplam odak",
+
+  "start_task": "Başlat",
+  "active_task": "Aktif görev",
+  "no_active_task": "Aktif görev yok",
+  "focus_completed": "Odak tamamlandı. Güzel iş.",
+  "minutes_short": "dk",
+
+  "completed_status": "Tamamlandı",
+
+  "focus_subtitle": "Tek bir göreve başla, odağını koru, molalarını takip et.",
+  "away_time": "Uzak kalma süresi",
+
+  "break_mode": "Mola Modu",
+"start_break": "Molayı Başlat",
+"start_focus": "Odağı Başlat",
+"break_completed": "Mola bitti. Devam etmeye hazır mısın?",
+"focus_ready": "Odak hazır.",
+"break_ready": "Mola hazır.",
+"auto_start_break": "Molayı otomatik başlat",
+"auto_start_focus": "Sonraki odağı otomatik başlat",
+
+"settings_subtitle": "Otomatik başlatma, bildirim ve günlük hedef ayarlarını düzenle.",
+"auto_start_break_desc": "Odak süresi bittiğinde mola otomatik olarak başlasın.",
+"auto_start_focus_desc": "Mola bittiğinde sıradaki odak süresi otomatik olarak başlasın.",
+"sound_notification": "Sesli bildirim",
+"sound_notification_desc": "Süre bittiğinde sesli uyarı ver.",
+"daily_focus_goal": "Günlük odak hedefi",
+"daily_focus_goal_desc": "Bir günde ulaşmak istediğin toplam odak süresini dakika olarak belirle.",
+"save": "Kaydet",
+"settings_saved": "Ayarlar kaydedildi."
+}

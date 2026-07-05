@@ -1,0 +1,77 @@
+{
+  "app_name": "FocusFlow",
+
+  "focus_timer": "Focus Timer",
+  "study_plan": "Study Plan",
+  "regular_pomodoro": "Pomodoro",
+  "statistics": "Statistics",
+  "settings": "Settings",
+  "language": "Language",
+
+  "study_plan_title": "Study Plan",
+  "study_plan_subtitle": "Plan your tasks and organize your focus blocks.",
+  "add_task": "Add Task",
+  "add_new_task": "Add New Task",
+  "task_name": "Task name",
+  "subject": "Subject",
+  "focus_minutes": "Focus min",
+  "break_minutes": "Break min",
+  "priority": "Priority",
+
+  "all_tasks": "All Tasks",
+  "today": "Today",
+  "this_week": "This Week",
+  "completed": "Completed",
+
+  "math": "Math",
+  "physics": "Physics",
+  "chemistry": "Chemistry",
+  "turkish": "Turkish",
+  "biology": "Biology",
+  "history": "History",
+  "geography": "Geography",
+  "other": "Other",
+
+  "low": "Low",
+  "medium": "Medium",
+  "high": "High",
+
+  "focus_mode": "Focus Mode",
+  "paused": "Paused",
+  "start": "Start",
+  "pause": "Pause",
+  "resume": "Resume",
+  "reset": "Reset",
+  "away_message": "You've been away for {minutes} min.",
+  "total_focus_today": "Total focus today",
+
+  "start_task": "Start",
+  "active_task": "Active task",
+  "no_active_task": "No active task",
+  "focus_completed": "Focus completed. Nice work.",
+  "minutes_short": "min",
+
+  "completed_status": "Completed",
+
+  "focus_subtitle": "Start one task, protect your focus, track your breaks.",
+  "away_time": "Away time",
+
+  "break_mode": "Break Mode",
+  "start_break": "Start Break",
+  "start_focus": "Start Focus",
+  "break_completed": "Break completed. Ready to continue?",
+  "focus_ready": "Focus is ready.",
+  "break_ready": "Break is ready.",
+  "auto_start_break": "Auto-start break",
+  "auto_start_focus": "Auto-start next focus",
+
+  "settings_subtitle": "Adjust auto-start, notification, and daily focus goal settings.",
+"auto_start_break_desc": "Automatically start the break when a focus session ends.",
+"auto_start_focus_desc": "Automatically start the next focus session when a break ends.",
+"sound_notification": "Sound notification",
+"sound_notification_desc": "Play a sound when a timer ends.",
+"daily_focus_goal": "Daily focus goal",
+"daily_focus_goal_desc": "Set your daily target focus time in minutes.",
+"save": "Save",
+"settings_saved": "Settings saved."
+}
