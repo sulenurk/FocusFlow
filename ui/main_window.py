@@ -18,6 +18,8 @@ class FocusFlowApp(ctk.CTk):
         self.language = self.app_data.get("language", "tr")
         self.translations = self.load_translations(self.language)
 
+        self.active_page = "focus"
+
         self.title(self.t("app_name"))
         self.geometry("1000x650")
         self.minsize(900, 600)
@@ -164,19 +166,29 @@ class FocusFlowApp(ctk.CTk):
         self.settings_page.grid(row=0, column=0, sticky="nsew")
 
     def show_focus_page(self):
+        self.active_page = "focus"
+        self.update_sidebar_active_state()
         self.focus_page.tkraise()
 
     def show_todo_page(self):
+        self.active_page = "study"
+        self.update_sidebar_active_state()
         self.todo_page.tkraise()
 
     def show_pomodoro_page(self):
+        self.active_page = "pomodoro"
+        self.update_sidebar_active_state()
         self.pomodoro_page.tkraise()
 
     def show_statistics_page(self):
+        self.active_page = "statistics"
+        self.update_sidebar_active_state()
         self.statistics_page.refresh_stats()
         self.statistics_page.tkraise()
 
     def show_settings_page(self):
+        self.active_page = "settings"
+        self.update_sidebar_active_state()
         self.settings_page.tkraise()
 
     def change_language(self, selected_language):
@@ -222,3 +234,26 @@ class FocusFlowApp(ctk.CTk):
 
         self.focus_page.load_active_task()
         self.show_focus_page()
+
+    def update_sidebar_active_state(self):
+        buttons = {
+            "focus": self.focus_button,
+            "study": self.todo_button,
+            "pomodoro": self.pomodoro_button,
+            "statistics": self.statistics_button,
+            "settings": self.settings_button,
+        }
+
+        for page_name, button in buttons.items():
+            if page_name == self.active_page:
+                button.configure(
+                    fg_color="#312E81",
+                    hover_color="#312E81",
+                    text_color="#F8FAFC"
+                )
+            else:
+                button.configure(
+                    fg_color="#1E293B",
+                    hover_color="#334155",
+                    text_color="#CBD5E1"
+                )

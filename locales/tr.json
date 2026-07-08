@@ -96,5 +96,16 @@
 "pomodoro_settings_saved": "Pomodoro ayarları kaydedildi.",
 "regular_mode": "Klasik Mod",
 "short_break_mode": "Kısa Mola",
-"long_break_mode": "Uzun Mola"
+"long_break_mode": "Uzun Mola",
+
+"default_task_name": "Çalışma Seansı",
+"invalid_focus_minutes": "Odak süresi pozitif bir sayı olmalı.",
+"invalid_break_minutes": "Mola süresi 0 veya pozitif bir sayı olmalı.",
+"task_added": "Görev eklendi.",
+
+"empty_tasks_title": "Henüz görev yok",
+"empty_tasks_subtitle": "İlk çalışma bloğunu ekleyerek bugünkü planını oluşturmaya başla.",
+"pending_status": "Bekliyor",
+"active_status": "Aktif",
+"completed_status_label": "Tamamlandı"
 }
