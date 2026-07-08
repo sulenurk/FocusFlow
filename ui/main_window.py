@@ -288,27 +288,41 @@ class FocusFlowApp(ctk.CTk):
         if not self.app_data.get("queue_mode_active", False):
             return False
 
-        active_task_id = self.app_data.get("active_task_id")
         tasks = self.app_data.get("tasks", [])
+        pending_tasks = [
+            task for task in tasks
+            if task.get("status") != "completed"
+        ]
 
-        active_index = None
+        if not pending_tasks:
+            self.app_data["queue_mode_active"] = False
+            self.app_data["active_task_id"] = None
+            self.save_app_data()
 
-        for index, task in enumerate(tasks):
-            if task.get("id") == active_task_id:
-                active_index = index
-                break
+            if hasattr(self, "focus_page"):
+                self.focus_page.load_active_task()
 
-        if active_index is None:
             return False
 
-        for next_task in tasks[active_index + 1:]:
-            if next_task.get("status") != "completed":
-                self.app_data["active_task_id"] = next_task.get("id")
-                self.save_app_data()
-                self.focus_page.load_active_task()
-                return True
-
-        self.app_data["queue_mode_active"] = False
-        self.app_data["active_task_id"] = None
+        next_task = pending_tasks[0]
+        self.app_data["active_task_id"] = next_task.get("id")
         self.save_app_data()
-        return False
+
+        if hasattr(self, "focus_page"):
+            self.focus_page.load_active_task()
+
+        return True
+    
+    def mark_task_completed(self, task_id):
+        if not task_id:
+            return
+
+        for task in self.app_data.get("tasks", []):
+            if task.get("id") == task_id:
+                task["status"] = "completed"
+                break
+
+        self.save_app_data()
+
+        if hasattr(self, "todo_page"):
+            self.todo_page.render_tasks()

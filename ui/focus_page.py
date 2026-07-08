@@ -370,12 +370,18 @@ class FocusPage(ctk.CTkFrame):
                     text_color="#D1FAE5"
                 )
 
+                active_task = self.app.get_active_task()
+                active_task_id = active_task.get("id") if active_task else None
+
                 self.app.app_data["total_focus_seconds_today"] = (
-                self.app.app_data.get("total_focus_seconds_today", 0)
-                + self.focus_seconds
+                    self.app.app_data.get("total_focus_seconds_today", 0)
+                    + self.focus_seconds
                 )
 
                 self.log_focus_session()
+
+                if self.app.app_data.get("queue_mode_active", False):
+                    self.app.mark_task_completed(active_task_id)
 
                 self.app.save_app_data()
                 self.update_total_focus_label()
@@ -388,12 +394,29 @@ class FocusPage(ctk.CTkFrame):
             else:
                 self.away_warning_label.configure(text=self.app.t("break_completed"))
 
-                moved_to_next_task = self.app.move_to_next_queue_task()
+                if self.app.app_data.get("queue_mode_active", False):
+                    moved_to_next_task = self.app.move_to_next_queue_task()
 
-                if moved_to_next_task:
-                    self.away_warning_label.configure(text=self.app.t("focus_ready"))
-
-                self.switch_to_focus_ready()
+                    if moved_to_next_task:
+                        self.away_warning_label.configure(text=self.app.t("focus_ready"))
+                        self.switch_to_focus_ready()
+                    else:
+                        self.is_running = False
+                        self.is_paused = False
+                        self.is_waiting_for_next = False
+                        self.current_mode = "focus"
+                        self.remaining_seconds = self.focus_seconds
+                        self.load_active_task()
+                        self.timer_label.configure(text=self.format_time(self.remaining_seconds))
+                        self.start_button.configure(text=self.app.t("start"))
+                        self.status_pill.configure(
+                            text=self.app.t("focus_mode"),
+                            fg_color=COLORS["primary_soft"],
+                            text_color=COLORS["text"]
+                        )
+                        self.away_warning_label.configure(text=self.app.t("no_pending_tasks"))
+                else:
+                    self.switch_to_focus_ready()
                     
     def update_away_timer(self):
         if self.is_paused:
