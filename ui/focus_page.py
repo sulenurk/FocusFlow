@@ -428,6 +428,7 @@ class FocusPage(ctk.CTkFrame):
     def switch_to_break_ready(self):
         self.current_mode = "break"
         self.remaining_seconds = self.break_seconds
+        self.update_current_task_progress()
         self.is_waiting_for_next = True
         self.timer_label.configure(text=self.format_time(self.remaining_seconds))
         self.away_warning_label.configure(text=self.app.t("break_ready"))
@@ -448,8 +449,10 @@ class FocusPage(ctk.CTkFrame):
         self.timer_label.configure(text=self.format_time(self.remaining_seconds))
         self.away_warning_label.configure(text=self.app.t("focus_ready"))
         self.start_button.configure(text=self.app.t("start_focus"))
+
         self.task_progress.set(0)
         self.task_progress_label.configure(text="0%")
+        self.update_current_task_progress()
 
         self.update_mode_ui()
 
@@ -485,6 +488,8 @@ class FocusPage(ctk.CTkFrame):
 
             if self.current_mode == "focus":
                 self.away_warning_label.configure(text=self.app.t("focus_completed"))
+
+                self.update_queue_progress()
 
                 self.status_pill.configure(
                     text=self.app.t("completed_status"),
@@ -527,8 +532,15 @@ class FocusPage(ctk.CTkFrame):
                         self.is_paused = False
                         self.is_waiting_for_next = False
                         self.current_mode = "focus"
-                        self.remaining_seconds = self.focus_seconds
+
+                        self.app.app_data["active_task_id"] = None
+                        self.app.app_data["queue_mode_active"] = False
+                        self.app.app_data["queue_task_ids"] = []
+                        self.app.save_app_data()
+
                         self.load_active_task()
+                        self.update_queue_progress()
+
                         self.timer_label.configure(text=self.format_time(self.remaining_seconds))
                         self.start_button.configure(text=self.app.t("start"))
                         self.status_pill.configure(
@@ -634,21 +646,52 @@ class FocusPage(ctk.CTkFrame):
 
     def get_queue_counts(self):
         tasks = self.app.app_data.get("tasks", [])
-        total_tasks = len(tasks)
-        completed_tasks = len([
-            task for task in tasks
-            if task.get("status") == "completed"
-        ])
-        pending_tasks = total_tasks - completed_tasks
-        return total_tasks, completed_tasks, pending_tasks
+        queue_task_ids = self.app.app_data.get("queue_task_ids", [])
+        queue_active = self.app.app_data.get("queue_mode_active", False)
 
+        tasks_by_id = {
+            task.get("id"): task
+            for task in tasks
+        }
+
+        if queue_active and queue_task_ids:
+            queue_tasks = [
+                tasks_by_id[task_id]
+                for task_id in queue_task_ids
+                if task_id in tasks_by_id
+            ]
+
+            total_tasks = len(queue_tasks)
+            completed_tasks = len([
+                task for task in queue_tasks
+                if task.get("status") == "completed"
+            ])
+            pending_tasks = total_tasks - completed_tasks
+
+            return total_tasks, completed_tasks, pending_tasks
+
+        pending_tasks_list = [
+            task for task in tasks
+            if task.get("status") != "completed"
+        ]
+
+        total_tasks = len(pending_tasks_list)
+        completed_tasks = 0
+        pending_tasks = total_tasks
+
+        return total_tasks, completed_tasks, pending_tasks
+    
     def update_queue_progress(self):
         total_tasks, completed_tasks, pending_tasks = self.get_queue_counts()
 
         self.queue_value.configure(text=f"{completed_tasks} / {total_tasks}")
-        self.queue_detail.configure(
-            text=f"{pending_tasks} pending"
-        )
+
+        if total_tasks == 0:
+            self.queue_detail.configure(text=self.app.t("no_pending_tasks"))
+        else:
+            self.queue_detail.configure(
+                text=f"{pending_tasks} pending"
+            )
 
         queue_active = self.app.app_data.get("queue_mode_active", False)
 
@@ -666,6 +709,14 @@ class FocusPage(ctk.CTkFrame):
             self.queue_card.grid_remove()
 
     def update_current_task_progress(self):
+        task = self.app.get_active_task()
+
+        if not task:
+            self.task_progress.set(0)
+            self.task_progress_label.configure(text="0%")
+            self.update_current_task_bar_text()
+            return
+
         total = self.get_current_mode_total_seconds()
 
         if total <= 0:
@@ -676,6 +727,7 @@ class FocusPage(ctk.CTkFrame):
 
         self.task_progress.set(progress)
         self.task_progress_label.configure(text=f"{int(progress * 100)}%")
+        self.update_current_task_bar_text()
 
     def get_cumulative_away_seconds_today(self):
         today_sessions = []
@@ -698,3 +750,37 @@ class FocusPage(ctk.CTkFrame):
         current_away = self.away_seconds if self.is_paused else 0
 
         return completed_away + current_away
+    
+    def update_current_task_bar_text(self):
+        task = self.app.get_active_task()
+
+        if not task:
+            self.current_task_title.configure(text=self.app.t("no_active_task"))
+            self.current_task_detail.configure(text=self.app.t("no_task_selected"))
+            return
+
+        subject = self.app.t(task.get("subject", "other"))
+        title = task.get("title", "")
+
+        total = self.get_current_mode_total_seconds()
+        elapsed = max(total - self.remaining_seconds, 0)
+
+        elapsed_minutes = elapsed // 60
+        total_minutes = total // 60
+
+        if self.current_mode == "focus":
+            self.current_task_title.configure(
+                text=f"{subject} · {title}"
+            )
+            self.current_task_detail.configure(
+                text=f"{elapsed_minutes} / {total_minutes} {self.app.t('minutes_short')} · "
+                     f"{self.app.t('focus_mode')}"
+            )
+        else:
+            self.current_task_title.configure(
+                text=f"{self.app.t('break_mode')} · {subject}"
+            )
+            self.current_task_detail.configure(
+                text=f"{elapsed_minutes} / {total_minutes} {self.app.t('minutes_short')} · "
+                     f"{self.app.t('break_mode')}"
+            )
