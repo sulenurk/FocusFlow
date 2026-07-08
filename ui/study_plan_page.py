@@ -179,6 +179,21 @@ class StudyPlanPage(ctk.CTkFrame):
         )
         self.add_button.grid(row=1, column=5, padx=(8, 20), pady=(8, 20))
 
+        self.form_status_label = ctk.CTkLabel(
+            self.add_card,
+            text="",
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=13, weight="bold")
+        )
+        self.form_status_label.grid(
+            row=2,
+            column=0,
+            columnspan=6,
+            padx=20,
+            pady=(0, 16),
+            sticky="w"
+        )
+
     def focus_task_name_entry(self):
         self.task_name_entry.focus_set()
 
@@ -205,22 +220,45 @@ class StudyPlanPage(ctk.CTkFrame):
         focus_value = self.focus_entry.get().strip()
         break_value = self.break_entry.get().strip()
 
-        if not title:
-            return
-
-        try:
-            focus_minutes = int(focus_value)
-            break_minutes = int(break_value)
-        except ValueError:
-            return
-
-        if focus_minutes <= 0 or break_minutes < 0:
-            return
-
         selected_subject = self.get_key_from_translated_value(
             self.subject_menu.get(),
             self.subject_options
         )
+
+        if not title:
+            title = self.app.t("default_task_name")
+
+        try:
+            focus_minutes = int(focus_value)
+        except ValueError:
+            self.form_status_label.configure(
+                text=self.app.t("invalid_focus_minutes"),
+                text_color=COLORS["red"]
+            )
+            return
+
+        try:
+            break_minutes = int(break_value)
+        except ValueError:
+            self.form_status_label.configure(
+                text=self.app.t("invalid_break_minutes"),
+                text_color=COLORS["red"]
+            )
+            return
+
+        if focus_minutes <= 0:
+            self.form_status_label.configure(
+                text=self.app.t("invalid_focus_minutes"),
+                text_color=COLORS["red"]
+            )
+            return
+
+        if break_minutes < 0:
+            self.form_status_label.configure(
+                text=self.app.t("invalid_break_minutes"),
+                text_color=COLORS["red"]
+            )
+            return
 
         selected_priority = self.get_key_from_translated_value(
             self.priority_menu.get(),
@@ -246,7 +284,53 @@ class StudyPlanPage(ctk.CTkFrame):
         self.break_entry.delete(0, "end")
         self.break_entry.insert(0, "5")
 
+        self.form_status_label.configure(
+            text=self.app.t("task_added"),
+            text_color=COLORS["green"]
+        )
+
+        self.after(2000, lambda: self.form_status_label.configure(text=""))
+
         self.render_tasks()
+    
+    def render_empty_state(self):
+        empty_card = AppCard(self.task_scroll)
+        empty_card.grid(row=0, column=0, padx=4, pady=20, sticky="ew")
+        empty_card.grid_columnconfigure(0, weight=1)
+
+        icon_label = ctk.CTkLabel(
+            empty_card,
+            text="✦",
+            text_color=COLORS["primary"],
+            font=ctk.CTkFont(size=42, weight="bold")
+        )
+        icon_label.grid(row=0, column=0, pady=(28, 8))
+
+        title_label = ctk.CTkLabel(
+            empty_card,
+            text=self.app.t("empty_tasks_title"),
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=20, weight="bold")
+        )
+        title_label.grid(row=1, column=0, pady=(0, 6))
+
+        subtitle_label = ctk.CTkLabel(
+            empty_card,
+            text=self.app.t("empty_tasks_subtitle"),
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=14),
+            wraplength=420,
+            justify="center"
+        )
+        subtitle_label.grid(row=2, column=0, padx=30, pady=(0, 20))
+
+        add_button = PrimaryButton(
+            empty_card,
+            text=f"+ {self.app.t('add_task')}",
+            command=self.focus_task_name_entry,
+            width=150
+        )
+        add_button.grid(row=3, column=0, pady=(0, 28))
 
     def render_tasks(self):
         for widget in self.task_scroll.winfo_children():
@@ -258,24 +342,23 @@ class StudyPlanPage(ctk.CTkFrame):
             tasks = [task for task in tasks if task.get("status") == "completed"]
 
         if not tasks:
-            empty_label = ctk.CTkLabel(
-                self.task_scroll,
-                text="No tasks yet.",
-                text_color=COLORS["muted"],
-                font=ctk.CTkFont(size=15)
-            )
-            empty_label.grid(row=0, column=0, padx=20, pady=40)
+            self.render_empty_state()
             return
 
         for row_index, task in enumerate(tasks):
+            is_active = task.get("id") == self.app.app_data.get("active_task_id")
+            is_completed = task.get("status") == "completed"
+
             card = TaskCard(
-    self.task_scroll,
-    self.app,
-    task,
-    on_start=self.start_task,
-    on_delete=self.delete_task,
-    on_complete=self.complete_task
-)
+                self.task_scroll,
+                self.app,
+                task,
+                is_active=is_active,
+                is_completed=is_completed,
+                on_start=self.start_task,
+                on_delete=self.delete_task,
+                on_complete=self.complete_task
+            )
             card.grid(row=row_index, column=0, pady=7, sticky="ew")
 
     def delete_task(self, task_id):
@@ -314,13 +397,37 @@ class StudyPlanPage(ctk.CTkFrame):
 
     def start_task(self, task_id):
         self.app.set_active_task(task_id)
+        self.render_tasks()
 
 
 class TaskCard(AppCard):
-    def __init__(self, parent, app, task, on_start, on_delete, on_complete):
-        super().__init__(parent)
+    def __init__(
+        self,
+        parent,
+        app,
+        task,
+        is_active=False,
+        is_completed=False,
+        on_start=None,
+        on_delete=None,
+        on_complete=None
+    ):
+        border_color = COLORS["primary"] if is_active else COLORS["card_border"]
+        fg_color = COLORS["surface"] if is_completed else COLORS["card"]
+
+        ctk.CTkFrame.__init__(
+            self,
+            parent,
+            fg_color=fg_color,
+            corner_radius=22,
+            border_width=2 if is_active else 1,
+            border_color=border_color
+        )
+
         self.app = app
         self.task = task
+        self.is_active = is_active
+        self.is_completed = is_completed
         self.on_start = on_start
         self.on_delete = on_delete
         self.on_complete = on_complete
@@ -342,7 +449,7 @@ class TaskCard(AppCard):
         self.title = ctk.CTkLabel(
             self,
             text=title_text,
-            text_color=COLORS["text"],
+            text_color=COLORS["muted"] if self.is_completed else COLORS["text"],
             font=ctk.CTkFont(size=16, weight="bold"),
             anchor="w"
         )
@@ -363,7 +470,29 @@ class TaskCard(AppCard):
         self.details.grid(row=1, column=1, padx=0, pady=(0, 16), sticky="ew")
 
         self.priority = PriorityBadge(self, task.get("priority", "medium"))
-        self.priority.grid(row=0, column=2, rowspan=2, padx=12, pady=20)
+        self.priority.grid(row=0, column=2, rowspan=2, padx=(12, 8), pady=20)
+
+        if self.is_completed:
+            status_text = self.app.t("completed_status_label")
+            status_color = COLORS["green"]
+        elif self.is_active:
+            status_text = self.app.t("active_status")
+            status_color = COLORS["primary"]
+        else:
+            status_text = self.app.t("pending_status")
+            status_color = COLORS["card_soft"]
+
+        self.status_badge = ctk.CTkLabel(
+            self,
+            text=status_text,
+            fg_color=status_color,
+            text_color=COLORS["white"],
+            corner_radius=10,
+            padx=10,
+            pady=5,
+            font=ctk.CTkFont(size=12, weight="bold")
+        )
+        self.status_badge.grid(row=0, column=3, rowspan=2, padx=(0, 8), pady=20)
 
         self.start_button = SecondaryButton(
             self,
@@ -371,20 +500,30 @@ class TaskCard(AppCard):
             command=lambda: self.on_start(task.get("id")),
             width=92
         )
-        self.start_button.grid(row=0, column=3, rowspan=2, padx=(0, 8), pady=20)
-
+        self.start_button.grid(row=0, column=4, rowspan=2, padx=(0, 8), pady=20)
         self.complete_button = SecondaryButton(
             self,
             text="✓",
             command=lambda: self.on_complete(task.get("id")),
             width=44
         )
-        self.complete_button.grid(row=0, column=4, rowspan=2, padx=(0, 8), pady=20)
-
+        self.complete_button.grid(row=0, column=5, rowspan=2, padx=(0, 8), pady=20)
         self.delete_button = SecondaryButton(
             self,
             text="×",
             command=lambda: self.on_delete(task.get("id")),
             width=44
         )
-        self.delete_button.grid(row=0, column=5, rowspan=2, padx=(0, 18), pady=20)
+        self.delete_button.grid(row=0, column=6, rowspan=2, padx=(0, 18), pady=20)
+
+        if self.is_completed:
+            self.start_button.configure(
+                state="disabled",
+                fg_color=COLORS["surface"],
+                text_color=COLORS["muted"]
+            )
+            self.complete_button.configure(
+                state="disabled",
+                fg_color=COLORS["surface"],
+                text_color=COLORS["muted"]
+            )

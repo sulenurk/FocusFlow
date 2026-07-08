@@ -96,5 +96,15 @@
 "pomodoro_settings_saved": "Pomodoro settings saved.",
 "regular_mode": "Regular Mode",
 "short_break_mode": "Short Break",
-"long_break_mode": "Long Break"
+"long_break_mode": "Long Break",
+
+"default_task_name": "Study Session",
+"invalid_focus_minutes": "Focus minutes must be a positive number.",
+"invalid_break_minutes": "Break minutes must be 0 or a positive number.",
+"task_added": "Task added.",
+"empty_tasks_title": "No tasks yet",
+"empty_tasks_subtitle": "Add your first study block to start building today's plan.",
+"pending_status": "Pending",
+"active_status": "Active",
+"completed_status_label": "Completed"
 }
