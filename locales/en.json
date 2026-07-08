@@ -106,5 +106,12 @@
 "empty_tasks_subtitle": "Add your first study block to start building today's plan.",
 "pending_status": "Pending",
 "active_status": "Active",
-"completed_status_label": "Completed"
+"completed_status_label": "Completed",
+
+"recent_sessions": "Recent Sessions",
+"regular_pomodoro_session": "Regular Pomodoro",
+"session_duration": "Duration",
+"session_away": "Away",
+"no_recent_sessions": "No completed focus sessions yet.",
+"no_recent_sessions_subtitle": "Your completed focus sessions will appear here."
 }
