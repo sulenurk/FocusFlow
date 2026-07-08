@@ -270,18 +270,23 @@ class FocusFlowApp(ctk.CTk):
         if not pending_tasks:
             return False
 
-        first_task = pending_tasks[0]
+        queue_task_ids = [task.get("id") for task in pending_tasks]
+
         self.app_data["queue_mode_active"] = True
-        self.app_data["active_task_id"] = first_task.get("id")
+        self.app_data["queue_task_ids"] = queue_task_ids
+        self.app_data["active_task_id"] = queue_task_ids[0]
         self.save_app_data()
 
         self.focus_page.load_active_task()
+        self.focus_page.update_queue_progress()
+        self.focus_page.refresh_queue_progress_visibility()
         self.show_focus_page()
 
         return True
 
     def stop_task_queue(self):
         self.app_data["queue_mode_active"] = False
+        self.app_data["queue_task_ids"] = []
         self.app_data["active_task_id"] = None
         self.save_app_data()
 
@@ -294,34 +299,58 @@ class FocusFlowApp(ctk.CTk):
         if hasattr(self, "todo_page"):
             self.todo_page.render_tasks()
 
+    def mark_task_completed(self, task_id):
+        if not task_id:
+            return
+
+        for task in self.app_data.get("tasks", []):
+            if task.get("id") == task_id:
+                task["status"] = "completed"
+                break
+
+        self.save_app_data()
+
+        if hasattr(self, "todo_page"):
+            self.todo_page.render_tasks()
+
+        if hasattr(self, "focus_page"):
+            self.focus_page.update_queue_progress()
+
     def move_to_next_queue_task(self):
         if not self.app_data.get("queue_mode_active", False):
             return False
 
+        queue_task_ids = self.app_data.get("queue_task_ids", [])
         tasks = self.app_data.get("tasks", [])
-        pending_tasks = [
-            task for task in tasks
-            if task.get("status") != "completed"
-        ]
 
-        if not pending_tasks:
-            self.app_data["queue_mode_active"] = False
-            self.app_data["active_task_id"] = None
-            self.save_app_data()
+        tasks_by_id = {
+            task.get("id"): task
+            for task in tasks
+        }
 
-            if hasattr(self, "focus_page"):
-                self.focus_page.load_active_task()
+        for task_id in queue_task_ids:
+            task = tasks_by_id.get(task_id)
 
-            return False
+            if task and task.get("status") != "completed":
+                self.app_data["active_task_id"] = task_id
+                self.save_app_data()
 
-        next_task = pending_tasks[0]
-        self.app_data["active_task_id"] = next_task.get("id")
+                if hasattr(self, "focus_page"):
+                    self.focus_page.load_active_task()
+                    self.focus_page.update_queue_progress()
+
+                return True
+
+        self.app_data["queue_mode_active"] = False
+        self.app_data["queue_task_ids"] = []
+        self.app_data["active_task_id"] = None
         self.save_app_data()
 
         if hasattr(self, "focus_page"):
             self.focus_page.load_active_task()
+            self.focus_page.update_queue_progress()
 
-        return True
+        return False
     
     def mark_task_completed(self, task_id):
         if not task_id:

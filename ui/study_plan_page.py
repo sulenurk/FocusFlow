@@ -412,8 +412,16 @@ class StudyPlanPage(ctk.CTkFrame):
         tasks = self.app.app_data.get("tasks", [])
 
         if self.active_filter == "completed":
-            tasks = [task for task in tasks if task.get("status") == "completed"]
-
+            tasks = [
+                task for task in tasks
+                if task.get("status") == "completed"
+            ]
+        else:
+            tasks = [
+                task for task in tasks
+                if not task.get("hidden_from_plan", False)
+            ]
+            
         if not tasks:
             self.render_empty_state()
             return
@@ -439,11 +447,55 @@ class StudyPlanPage(ctk.CTkFrame):
             card.grid(row=row_index, column=0, pady=7, sticky="ew")
 
     def delete_task(self, task_id):
-        self.app.app_data["tasks"] = [
-            task for task in self.app.app_data.get("tasks", [])
-            if task.get("id") != task_id
+        tasks = self.app.app_data.get("tasks", [])
+
+        task_to_delete = None
+
+        for task in tasks:
+            if task.get("id") == task_id:
+                task_to_delete = task
+                break
+
+        if not task_to_delete:
+            return
+
+        active_task_id = self.app.app_data.get("active_task_id")
+
+        if task_to_delete.get("status") == "completed":
+            task_to_delete["hidden_from_plan"] = True
+        else:
+            self.app.app_data["tasks"] = [
+                task for task in tasks
+                if task.get("id") != task_id
+            ]
+
+            if active_task_id == task_id:
+                self.app.app_data["active_task_id"] = None
+                self.app.app_data["queue_mode_active"] = False
+                self.app.app_data["queue_task_ids"] = []
+
+        existing_task_ids = {
+            task.get("id")
+            for task in self.app.app_data.get("tasks", [])
+        }
+
+        self.app.app_data["queue_task_ids"] = [
+            item_id for item_id in self.app.app_data.get("queue_task_ids", [])
+            if item_id in existing_task_ids
         ]
+
+        if not self.app.app_data.get("tasks"):
+            self.app.app_data["active_task_id"] = None
+            self.app.app_data["queue_mode_active"] = False
+            self.app.app_data["queue_task_ids"] = []
+
         self.app.save_app_data()
+
+        if hasattr(self.app, "focus_page"):
+            self.app.focus_page.load_active_task()
+            self.app.focus_page.update_queue_progress()
+            self.app.focus_page.refresh_queue_progress_visibility()
+
         self.render_tasks()
 
     def complete_task(self, task_id):
