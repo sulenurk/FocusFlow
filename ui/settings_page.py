@@ -10,27 +10,44 @@ class SettingsPage(ctk.CTkFrame):
         self.app = app
 
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        self.scroll = ctk.CTkScrollableFrame(
+            self,
+            fg_color=COLORS["bg"],
+            corner_radius=0
+        )
+        self.scroll.grid(row=0, column=0, sticky="nsew")
+        self.scroll.grid_columnconfigure(0, weight=1)
 
         self.create_header()
         self.create_settings_card()
         self.load_settings()
 
     def create_header(self):
-        self.header = ctk.CTkFrame(self, fg_color="transparent")
-        self.header.grid(row=0, column=0, padx=36, pady=(30, 12), sticky="ew")
+        self.header = ctk.CTkFrame(self.scroll, fg_color="transparent")
+        self.header.grid(row=0, column=0, padx=32, pady=(28, 18), sticky="ew")
         self.header.grid_columnconfigure(0, weight=1)
 
-        self.title_label = PageTitle(self.header, self.app.t("settings"))
+        self.title_label = ctk.CTkLabel(
+            self.header,
+            text=self.app.t("settings"),
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=30, weight="bold"),
+            anchor="w"
+        )
         self.title_label.grid(row=0, column=0, sticky="w")
 
-        self.subtitle_label = PageSubtitle(
+        self.subtitle_label = ctk.CTkLabel(
             self.header,
-            self.app.t("settings_subtitle")
+            text=self.app.t("settings_subtitle"),
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=14),
+            anchor="w"
         )
-        self.subtitle_label.grid(row=1, column=0, pady=(4, 0), sticky="w")
-
+        self.subtitle_label.grid(row=1, column=0, pady=(6, 0), sticky="w")
     def create_settings_card(self):
-        self.settings_card = AppCard(self)
+        self.settings_card = AppCard(self.scroll)
         self.settings_card.grid(row=1, column=0, padx=36, pady=(12, 30), sticky="ew")
         self.settings_card.grid_columnconfigure(0, weight=1)
 
