@@ -107,5 +107,12 @@
 "empty_tasks_subtitle": "İlk çalışma bloğunu ekleyerek bugünkü planını oluşturmaya başla.",
 "pending_status": "Bekliyor",
 "active_status": "Aktif",
-"completed_status_label": "Tamamlandı"
+"completed_status_label": "Tamamlandı",
+
+"recent_sessions": "Son Seanslar",
+"regular_pomodoro_session": "Klasik Pomodoro",
+"session_duration": "Süre",
+"session_away": "Uzak kalma",
+"no_recent_sessions": "Henüz tamamlanan odak seansı yok.",
+"no_recent_sessions_subtitle": "Bir odak seansı tamamladığında burada görünecek."
 }

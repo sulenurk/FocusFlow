@@ -11,17 +11,27 @@ class StatisticsPage(ctk.CTkFrame):
         self.app = app
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        self.scroll = ctk.CTkScrollableFrame(
+            self,
+            fg_color=COLORS["bg"],
+            scrollbar_button_color=COLORS["card_soft"],
+            scrollbar_button_hover_color=COLORS["primary"]
+        )
+        self.scroll.grid(row=0, column=0, sticky="nsew")
+        self.scroll.grid_columnconfigure(0, weight=1)
 
         self.create_header()
         self.create_metric_grid()
         self.create_goal_card()
         self.create_weekly_card()
+        self.create_recent_sessions_card()
 
         self.refresh_stats()
 
     def create_header(self):
-        self.header = ctk.CTkFrame(self, fg_color="transparent")
+        self.header = ctk.CTkFrame(self.scroll, fg_color="transparent")
         self.header.grid(row=0, column=0, padx=36, pady=(30, 12), sticky="ew")
         self.header.grid_columnconfigure(0, weight=1)
 
@@ -35,7 +45,7 @@ class StatisticsPage(ctk.CTkFrame):
         self.subtitle_label.grid(row=1, column=0, pady=(4, 0), sticky="w")
 
     def create_metric_grid(self):
-        self.metrics_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.metrics_frame = ctk.CTkFrame(self.scroll, fg_color="transparent")
         self.metrics_frame.grid(row=1, column=0, padx=36, pady=(12, 12), sticky="ew")
 
         for col in range(3):
@@ -66,7 +76,7 @@ class StatisticsPage(ctk.CTkFrame):
         self.away_card.grid(row=0, column=2, padx=(10, 0), sticky="ew")
 
     def create_goal_card(self):
-        self.goal_card = AppCard(self)
+        self.goal_card = AppCard(self.scroll)
         self.goal_card.grid(row=2, column=0, padx=36, pady=(8, 12), sticky="ew")
         self.goal_card.grid_columnconfigure(0, weight=1)
 
@@ -97,7 +107,7 @@ class StatisticsPage(ctk.CTkFrame):
         self.goal_progress.set(0)
 
     def create_weekly_card(self):
-        self.weekly_card = AppCard(self)
+        self.weekly_card = AppCard(self.scroll)
         self.weekly_card.grid(row=3, column=0, padx=36, pady=(8, 30), sticky="nsew")
         self.weekly_card.grid_columnconfigure(0, weight=1)
 
@@ -142,6 +152,27 @@ class StatisticsPage(ctk.CTkFrame):
             day_label.grid(row=1, column=0, padx=8, pady=(0, 14))
 
             self.weekly_day_widgets.append((value_label, day_label))
+
+    def create_recent_sessions_card(self):
+        print("Recent sessions card created")
+        self.recent_card = AppCard(self.scroll)
+        self.recent_card.grid(row=4, column=0, padx=36, pady=(8, 30), sticky="ew")
+        self.recent_card.grid_columnconfigure(0, weight=1)
+
+        self.recent_title = ctk.CTkLabel(
+            self.recent_card,
+            text=self.app.t("recent_sessions"),
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+        self.recent_title.grid(row=0, column=0, padx=22, pady=(20, 12), sticky="w")
+
+        self.recent_list_frame = ctk.CTkFrame(
+            self.recent_card,
+            fg_color="transparent"
+        )
+        self.recent_list_frame.grid(row=1, column=0, padx=22, pady=(0, 22), sticky="ew")
+        self.recent_list_frame.grid_columnconfigure(0, weight=1)
 
     def get_today_sessions(self):
         today_str = date.today().isoformat()
@@ -240,6 +271,7 @@ class StatisticsPage(ctk.CTkFrame):
         )
 
         self.refresh_weekly_overview()
+        self.render_recent_sessions()
 
     def refresh_weekly_overview(self):
         daily_totals = self.get_weekly_focus_seconds()
@@ -258,5 +290,133 @@ class StatisticsPage(ctk.CTkFrame):
         self.subtitle_label.configure(text=self.app.t("statistics_subtitle"))
         self.goal_title.configure(text=self.app.t("goal_progress"))
         self.weekly_title.configure(text=self.app.t("weekly_overview"))
-
+        self.recent_title.configure(text=self.app.t("recent_sessions"))
         self.refresh_stats()
+
+    def get_recent_today_sessions(self, limit=5):
+        today_sessions = self.get_today_sessions()
+
+        sorted_sessions = sorted(
+            today_sessions,
+            key=lambda session: session.get("completed_at", ""),
+            reverse=True
+        )
+
+        return sorted_sessions[:limit]
+
+    def format_session_time(self, iso_datetime):
+        try:
+            parsed = datetime.fromisoformat(iso_datetime)
+            return parsed.strftime("%H:%M")
+        except ValueError:
+            return "--:--"
+
+    def render_recent_sessions(self):
+        for widget in self.recent_list_frame.winfo_children():
+            widget.destroy()
+
+        recent_sessions = self.get_recent_today_sessions(limit=5)
+
+        if not recent_sessions:
+            self.render_recent_empty_state()
+            return
+
+        for row_index, session in enumerate(recent_sessions):
+            item = RecentSessionItem(self.recent_list_frame, self.app, session)
+            item.grid(row=row_index, column=0, pady=6, sticky="ew")
+
+    def render_recent_empty_state(self):
+        empty_frame = ctk.CTkFrame(
+            self.recent_list_frame,
+            fg_color=COLORS["surface"],
+            corner_radius=16
+        )
+        empty_frame.grid(row=0, column=0, sticky="ew")
+        empty_frame.grid_columnconfigure(0, weight=1)
+
+        title = ctk.CTkLabel(
+            empty_frame,
+            text=self.app.t("no_recent_sessions"),
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=15, weight="bold")
+        )
+        title.grid(row=0, column=0, padx=20, pady=(18, 4), sticky="w")
+
+        subtitle = ctk.CTkLabel(
+            empty_frame,
+            text=self.app.t("no_recent_sessions_subtitle"),
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=13)
+        )
+        subtitle.grid(row=1, column=0, padx=20, pady=(0, 18), sticky="w")
+
+class RecentSessionItem(ctk.CTkFrame):
+    def __init__(self, parent, app, session):
+        super().__init__(
+            parent,
+            fg_color=COLORS["surface"],
+            corner_radius=16
+        )
+
+        self.app = app
+        self.session = session
+
+        self.grid_columnconfigure(1, weight=1)
+
+        source = session.get("source", "study_plan")
+
+        if source == "regular_pomodoro":
+            icon_text = "⏱"
+            task_title = app.t("regular_pomodoro_session")
+        else:
+            icon_text = "📘"
+            task_title = session.get("task_title") or app.t("default_task_name")
+
+        icon = ctk.CTkLabel(
+            self,
+            text=icon_text,
+            width=42,
+            height=42,
+            fg_color=COLORS["primary_soft"],
+            text_color=COLORS["text"],
+            corner_radius=12,
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+        icon.grid(row=0, column=0, rowspan=2, padx=(16, 12), pady=14)
+
+        title = ctk.CTkLabel(
+            self,
+            text=task_title,
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=15, weight="bold"),
+            anchor="w"
+        )
+        title.grid(row=0, column=1, padx=0, pady=(14, 2), sticky="ew")
+
+        duration_text = self.format_minutes(session.get("duration_seconds", 0))
+        away_text = self.format_minutes(session.get("away_seconds", 0))
+        completed_time = self.format_session_time(session.get("completed_at", ""))
+
+        details = ctk.CTkLabel(
+            self,
+            text=(
+                f"{self.app.t('session_duration')}: {duration_text}   ·   "
+                f"{self.app.t('session_away')}: {away_text}   ·   "
+                f"{completed_time}"
+            ),
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=13),
+            anchor="w"
+        )
+        details.grid(row=1, column=1, padx=0, pady=(0, 14), sticky="ew")
+
+    def format_minutes(self, seconds):
+        minutes = seconds // 60
+        return f"{minutes}m"
+
+    def format_session_time(self, iso_datetime):
+        try:
+            parsed = datetime.fromisoformat(iso_datetime)
+            return parsed.strftime("%H:%M")
+        except ValueError:
+            return "--:--"
