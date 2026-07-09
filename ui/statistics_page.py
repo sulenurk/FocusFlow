@@ -24,6 +24,7 @@ class StatisticsPage(ctk.CTkFrame):
 
         self.create_header()
         self.create_metric_grid()
+        self.create_breakdown_card()
         self.create_goal_card()
         self.create_weekly_card()
         self.create_recent_sessions_card()
@@ -75,9 +76,69 @@ class StatisticsPage(ctk.CTkFrame):
         )
         self.away_card.grid(row=0, column=2, padx=(10, 0), sticky="ew")
 
+    def create_breakdown_card(self):
+        self.breakdown_card = AppCard(self.scroll)
+        self.breakdown_card.grid(row=2, column=0, padx=36, pady=(8, 12), sticky="ew")
+        self.breakdown_card.grid_columnconfigure(0, weight=1)
+
+        self.breakdown_title = ctk.CTkLabel(
+            self.breakdown_card,
+            text=self.app.t("focus_breakdown"),
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+        self.breakdown_title.grid(row=0, column=0, padx=22, pady=(20, 12), sticky="w")
+
+        self.breakdown_frame = ctk.CTkFrame(
+            self.breakdown_card,
+            fg_color="transparent"
+        )
+        self.breakdown_frame.grid(row=1, column=0, padx=0, pady=(0, 22), sticky="ew")
+        for col in range(12):
+            self.breakdown_frame.grid_columnconfigure(col, weight=1, uniform="breakdown")
+        
+        self.study_plan_focus_card = MetricCard(
+            self.breakdown_frame,
+            title=self.app.t("study_plan_focus"),
+            value="00:00",
+            accent_color=COLORS["primary"]
+        )
+        self.study_plan_focus_card.grid(
+            row=0,
+            column=0,
+            columnspan=4,
+            padx=(0, 8),
+            sticky="ew"
+        )
+        self.regular_pomodoro_focus_card = MetricCard(
+            self.breakdown_frame,
+            title=self.app.t("regular_pomodoro_focus"),
+            value="00:00",
+            accent_color=COLORS["orange"]
+        )
+        self.regular_pomodoro_focus_card.grid(
+            row=0,
+            column=4,
+            columnspan=3,
+            padx=(0, 8),
+            sticky="ew"
+        )
+        self.total_breakdown_focus_card = MetricCard(
+            self.breakdown_frame,
+            title=self.app.t("total_focus"),
+            value="00:00",
+            accent_color=COLORS["green"]
+        )
+        self.total_breakdown_focus_card.grid(
+            row=0,
+            column=8,
+            columnspan=4,
+            padx=(10, 22),
+            sticky="ew"
+        )
     def create_goal_card(self):
         self.goal_card = AppCard(self.scroll)
-        self.goal_card.grid(row=2, column=0, padx=36, pady=(8, 12), sticky="ew")
+        self.goal_card.grid(row=3, column=0, padx=36, pady=(8, 12), sticky="ew")
         self.goal_card.grid_columnconfigure(0, weight=1)
 
         self.goal_title = ctk.CTkLabel(
@@ -108,7 +169,7 @@ class StatisticsPage(ctk.CTkFrame):
 
     def create_weekly_card(self):
         self.weekly_card = AppCard(self.scroll)
-        self.weekly_card.grid(row=3, column=0, padx=36, pady=(8, 30), sticky="nsew")
+        self.weekly_card.grid(row=4, column=0, padx=36, pady=(8, 30), sticky="nsew")
         self.weekly_card.grid_columnconfigure(0, weight=1)
 
         self.weekly_title = ctk.CTkLabel(
@@ -154,9 +215,8 @@ class StatisticsPage(ctk.CTkFrame):
             self.weekly_day_widgets.append((value_label, day_label))
 
     def create_recent_sessions_card(self):
-        print("Recent sessions card created")
         self.recent_card = AppCard(self.scroll)
-        self.recent_card.grid(row=4, column=0, padx=36, pady=(8, 30), sticky="ew")
+        self.recent_card.grid(row=5, column=0, padx=36, pady=(8, 30), sticky="ew")
         self.recent_card.grid_columnconfigure(0, weight=1)
 
         self.recent_title = ctk.CTkLabel(
@@ -186,6 +246,24 @@ class StatisticsPage(ctk.CTkFrame):
                 today_sessions.append(session)
 
         return today_sessions
+    
+    def get_today_focus_by_source(self):
+        today_sessions = self.get_today_sessions()
+
+        totals = {
+            "study_plan": 0,
+            "regular_pomodoro": 0
+        }
+
+        for session in today_sessions:
+            source = session.get("source", "study_plan")
+
+            if source == "regular_pomodoro":
+                totals["regular_pomodoro"] += session.get("duration_seconds", 0)
+            else:
+                totals["study_plan"] += session.get("duration_seconds", 0)
+
+        return totals
 
     def get_weekly_focus_seconds(self):
         sessions = self.app.app_data.get("sessions", [])
@@ -252,6 +330,26 @@ class StatisticsPage(ctk.CTkFrame):
             value=self.format_hours_minutes(total_away_seconds)
         )
 
+        source_totals = self.get_today_focus_by_source()
+
+        study_plan_seconds = source_totals.get("study_plan", 0)
+        regular_pomodoro_seconds = source_totals.get("regular_pomodoro", 0)
+
+        self.study_plan_focus_card.update(
+            title=self.app.t("study_plan_focus"),
+            value=self.format_hours_minutes(study_plan_seconds)
+        )
+
+        self.regular_pomodoro_focus_card.update(
+            title=self.app.t("regular_pomodoro_focus"),
+            value=self.format_hours_minutes(regular_pomodoro_seconds)
+        )
+
+        self.total_breakdown_focus_card.update(
+            title=self.app.t("total_focus"),
+            value=self.format_hours_minutes(total_focus_seconds)
+        )
+
         goal_minutes = self.app.app_data.get("settings", {}).get("daily_focus_goal_minutes", 300)
         goal_seconds = goal_minutes * 60
 
@@ -276,21 +374,31 @@ class StatisticsPage(ctk.CTkFrame):
     def refresh_weekly_overview(self):
         daily_totals = self.get_weekly_focus_seconds()
 
-        day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        day_names = [
+            self.app.t("day_mon_short"),
+            self.app.t("day_tue_short"),
+            self.app.t("day_wed_short"),
+            self.app.t("day_thu_short"),
+            self.app.t("day_fri_short"),
+            self.app.t("day_sat_short"),
+            self.app.t("day_sun_short"),
+        ]
 
         for index, (day_key, seconds) in enumerate(daily_totals.items()):
             minutes = seconds // 60
 
             value_label, day_label = self.weekly_day_widgets[index]
-            value_label.configure(text=f"{minutes}m")
+            value_label.configure(text=f"{minutes}{self.app.t('minute_short')}")
             day_label.configure(text=day_names[index])
 
     def refresh_texts(self):
         self.title_label.configure(text=self.app.t("statistics"))
         self.subtitle_label.configure(text=self.app.t("statistics_subtitle"))
+        self.breakdown_title.configure(text=self.app.t("focus_breakdown"))
         self.goal_title.configure(text=self.app.t("goal_progress"))
         self.weekly_title.configure(text=self.app.t("weekly_overview"))
         self.recent_title.configure(text=self.app.t("recent_sessions"))
+        self.session_hint_label.configure(text=self.app.t("one_session_at_a_time"))
         self.refresh_stats()
 
     def get_recent_today_sessions(self, limit=5):
@@ -362,15 +470,20 @@ class RecentSessionItem(ctk.CTkFrame):
         self.session = session
 
         self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=0)
 
         source = session.get("source", "study_plan")
 
         if source == "regular_pomodoro":
             icon_text = "⏱"
             task_title = app.t("regular_pomodoro_session")
+            badge_text = app.t("pomodoro_badge")
+            badge_color = COLORS["orange"]
         else:
             icon_text = "📘"
             task_title = session.get("task_title") or app.t("default_task_name")
+            badge_text = app.t("study_plan_badge")
+            badge_color = COLORS["primary"]
 
         icon = ctk.CTkLabel(
             self,
@@ -392,6 +505,17 @@ class RecentSessionItem(ctk.CTkFrame):
             anchor="w"
         )
         title.grid(row=0, column=1, padx=0, pady=(14, 2), sticky="ew")
+        badge = ctk.CTkLabel(
+            self,
+            text=badge_text,
+            fg_color=badge_color,
+            text_color=COLORS["white"],
+            corner_radius=10,
+            padx=10,
+            pady=4,
+            font=ctk.CTkFont(size=11, weight="bold")
+        )
+        badge.grid(row=0, column=2, padx=(12, 16), pady=(14, 2), sticky="e")
 
         duration_text = self.format_minutes(session.get("duration_seconds", 0))
         away_text = self.format_minutes(session.get("away_seconds", 0))
@@ -412,7 +536,7 @@ class RecentSessionItem(ctk.CTkFrame):
 
     def format_minutes(self, seconds):
         minutes = seconds // 60
-        return f"{minutes}m"
+        return f"{minutes}{self.app.t('minute_short')}"
 
     def format_session_time(self, iso_datetime):
         try:

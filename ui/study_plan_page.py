@@ -47,6 +47,7 @@ class StudyPlanPage(ctk.CTkFrame):
         ]
 
         self.priority_options = ["low", "medium", "high"]
+        self.ensure_subjects_data()
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(5, weight=1)
@@ -58,6 +59,46 @@ class StudyPlanPage(ctk.CTkFrame):
         self.create_add_task_card()
         self.create_task_list()
         self.render_tasks()
+
+    def ensure_subjects_data(self):
+        subjects = self.app.app_data.setdefault("subjects", [])
+
+        if not subjects:
+            subjects.append({
+                "id": "subject_other",
+                "name": self.app.t("other_subject"),
+                "color": COLORS["primary"],
+                "is_default": True
+            })
+            self.app.save_app_data()
+
+
+    def get_subjects(self):
+        self.ensure_subjects_data()
+        return self.app.app_data.get("subjects", [])
+
+
+    def get_subject_names(self):
+        return [
+            subject.get("name", self.app.t("other_subject"))
+            for subject in self.get_subjects()
+        ]
+
+
+    def get_subject_by_name(self, subject_name):
+        for subject in self.get_subjects():
+            if subject.get("name") == subject_name:
+                return subject
+
+        return self.get_subjects()[0]
+
+
+    def get_subject_by_id(self, subject_id):
+        for subject in self.get_subjects():
+            if subject.get("id") == subject_id:
+                return subject
+
+        return self.get_subjects()[0]
 
     def create_header(self):
         self.header = ctk.CTkFrame(self, fg_color="transparent")
@@ -171,6 +212,44 @@ class StudyPlanPage(ctk.CTkFrame):
         self.task_scroll.grid(row=5, column=0, padx=36, pady=(0, 12), sticky="nsew")
         self.task_scroll.grid_columnconfigure(0, weight=1)
 
+    def get_subjects(self):
+        self.ensure_subjects_data()
+        subjects = self.app.app_data.setdefault("subjects", [])
+
+        if not subjects:
+            subjects.append({
+                "id": "subject_other",
+                "name": self.app.t("other_subject"),
+                "color": COLORS["primary"],
+                "is_default": True
+            })
+            self.app.save_app_data()
+
+        return subjects
+
+
+    def get_subject_names(self):
+        return [
+            subject.get("name", self.app.t("other_subject"))
+            for subject in self.get_subjects()
+        ]
+
+
+    def get_subject_by_name(self, subject_name):
+        for subject in self.get_subjects():
+            if subject.get("name") == subject_name:
+                return subject
+
+        return self.get_subjects()[0]
+
+
+    def get_subject_by_id(self, subject_id):
+        for subject in self.get_subjects():
+            if subject.get("id") == subject_id:
+                return subject
+
+        return self.get_subjects()[0]
+
     def create_add_task_card(self):
         self.add_card = AppCard(self)
         self.add_card.grid(row=4, column=0, padx=36, pady=(8, 30), sticky="ew")
@@ -186,7 +265,7 @@ class StudyPlanPage(ctk.CTkFrame):
 
         self.subject_menu = ctk.CTkOptionMenu(
             self.add_card,
-            values=[self.app.t(item) for item in self.subject_options],
+            values=self.get_subject_names(),
             width=135,
             height=42,
             fg_color=COLORS["input"],
@@ -197,9 +276,17 @@ class StudyPlanPage(ctk.CTkFrame):
             dropdown_text_color=COLORS["text"],
             command=None
         )
-        self.subject_menu.set(self.app.t("math"))
-        self.subject_menu.grid(row=1, column=0, padx=(20, 8), pady=(8, 20), sticky="ew")
 
+        subjects = self.get_subjects()
+        self.subject_menu.set(subjects[0].get("name", self.app.t("other_subject")))
+
+        self.subject_menu.grid(
+            row=1,
+            column=0,
+            padx=(20, 8),
+            pady=(8, 20),
+            sticky="ew"
+        )
         self.task_name_entry = AppEntry(
             self.add_card,
             placeholder_text=self.app.t("task_name")
@@ -295,10 +382,7 @@ class StudyPlanPage(ctk.CTkFrame):
         focus_value = self.focus_entry.get().strip()
         break_value = self.break_entry.get().strip()
 
-        selected_subject = self.get_key_from_translated_value(
-            self.subject_menu.get(),
-            self.subject_options
-        )
+        selected_subject = self.get_subject_by_name(self.subject_menu.get())
 
         if not title:
             title = self.app.t("default_task_name")
@@ -361,7 +445,8 @@ class StudyPlanPage(ctk.CTkFrame):
     def create_new_task(self, subject, title, focus_minutes, break_minutes, priority):
         new_task = {
             "id": f"task_{uuid.uuid4().hex[:8]}",
-            "subject": subject,
+            "subject_id": subject.get("id", "subject_other"),
+            "subject_name": subject.get("name", self.app.t("other_subject")),
             "title": title,
             "focus_minutes": focus_minutes,
             "break_minutes": break_minutes,
@@ -385,7 +470,8 @@ class StudyPlanPage(ctk.CTkFrame):
     def update_existing_task(self, task_id, subject, title, focus_minutes, break_minutes, priority):
         for task in self.app.app_data.get("tasks", []):
             if task.get("id") == task_id:
-                task["subject"] = subject
+                task["subject_id"] = subject.get("id", "subject_other")
+                task["subject_name"] = subject.get("name", self.app.t("other_subject"))
                 task["title"] = title
                 task["focus_minutes"] = focus_minutes
                 task["break_minutes"] = break_minutes
@@ -414,7 +500,9 @@ class StudyPlanPage(ctk.CTkFrame):
         self.focus_entry.insert(0, "25")
         self.break_entry.delete(0, "end")
         self.break_entry.insert(0, "5")
-        self.subject_menu.set(self.app.t("math"))
+        subjects = self.get_subjects()
+        self.subject_menu.configure(values=self.get_subject_names())
+        self.subject_menu.set(subjects[0].get("name", self.app.t("other_subject")))
         self.priority_menu.set(self.app.t("medium"))
 
     def cancel_edit(self):
@@ -606,7 +694,16 @@ class StudyPlanPage(ctk.CTkFrame):
         for key, button in self.filter_buttons.items():
             button.configure(text=self.app.t(key))
 
-        self.subject_menu.configure(values=[self.app.t(item) for item in self.subject_options])
+        current_subject = self.subject_menu.get()
+        subject_names = self.get_subject_names()
+
+        self.subject_menu.configure(values=subject_names)
+
+        if current_subject in subject_names:
+            self.subject_menu.set(current_subject)
+        else:
+            self.subject_menu.set(subject_names[0])
+
         self.priority_menu.configure(values=[self.app.t(item) for item in self.priority_options])
 
         self.render_tasks()
@@ -654,7 +751,16 @@ class StudyPlanPage(ctk.CTkFrame):
 
         self.editing_task_id = task_id
 
-        self.subject_menu.set(self.app.t(task.get("subject", "math")))
+        subject_id = task.get("subject_id")
+
+        if subject_id:
+            subject = self.get_subject_by_id(subject_id)
+        else:
+            old_subject_name = self.app.t(task.get("subject", "other_subject"))
+            subject = self.get_subject_by_name(old_subject_name)
+
+        self.subject_menu.configure(values=self.get_subject_names())
+        self.subject_menu.set(subject.get("name", self.app.t("other_subject")))
 
         self.task_name_entry.delete(0, "end")
         self.task_name_entry.insert(0, task.get("title", ""))
@@ -811,6 +917,19 @@ class StudyPlanPage(ctk.CTkFrame):
 
         self.render_tasks()
 
+    def refresh_subject_menu(self):
+        if not hasattr(self, "subject_menu"):
+            return
+
+        current_subject = self.subject_menu.get()
+        subject_names = self.get_subject_names()
+
+        self.subject_menu.configure(values=subject_names)
+
+        if current_subject in subject_names:
+            self.subject_menu.set(current_subject)
+        elif subject_names:
+            self.subject_menu.set(subject_names[0])
 
 class TaskCard(AppCard):
     def __init__(
@@ -875,8 +994,8 @@ class TaskCard(AppCard):
         self.title.grid(row=0, column=1, padx=0, pady=(16, 2), sticky="ew")
 
         detail_text = (
-            f"◷ {task.get('focus_minutes', 0)} {self.app.t('focus_minutes')}   "
-            f"○ {task.get('break_minutes', 0)} {self.app.t('break_minutes')}"
+            f"◷ {task.get('focus_minutes', 0)}{self.app.t('minute_short')} {self.app.t('focus_label_short')}   "
+            f"○ {task.get('break_minutes', 0)}{self.app.t('minute_short')} {self.app.t('break_label_short')}"
         )
 
         self.details = ctk.CTkLabel(
@@ -968,4 +1087,16 @@ class TaskCard(AppCard):
                 text_color=COLORS["muted"]
             )
 
-    
+    def refresh_subject_menu(self):
+        if not hasattr(self, "subject_menu"):
+            return
+
+        current_subject = self.subject_menu.get()
+        subject_names = self.get_subject_names()
+
+        self.subject_menu.configure(values=subject_names)
+
+        if current_subject in subject_names:
+            self.subject_menu.set(current_subject)
+        elif subject_names:
+            self.subject_menu.set(subject_names[0])
