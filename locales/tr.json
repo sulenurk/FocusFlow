@@ -159,5 +159,33 @@
   "pomodoro_auto_start_focus": "Odak oturumları otomatik başlar.",
   "pomodoro_auto_start_all": "Odak ve mola oturumları otomatik başlar.",
 
-  "auto_start": "Otomatik Başlat"
+  "auto_start": "Otomatik Başlat",
+
+  "study_plan_focus": "Çalışma Planı",
+  "regular_pomodoro_focus": "Klasik Pomodoro",
+  "focus_breakdown": "Odak Dağılımı",
+  "study_plan_badge": "Çalışma Planı",
+  "pomodoro_badge": "Pomodoro",
+
+  "minute_short": "dk",
+  "focus_label_short": "odak",
+  "break_label_short": "mola",
+  "day_mon_short": "Pzt",
+  "day_tue_short": "Sal",
+  "day_wed_short": "Çar",
+  "day_thu_short": "Per",
+  "day_fri_short": "Cum",
+  "day_sat_short": "Cmt",
+  "day_sun_short": "Paz",
+
+  "one_session_at_a_time": "Her seferinde tek oturum",
+
+  "subjects": "Dersler",
+  "subjects_subtitle": "Çalışma konularını ve derslerini yönet.",
+  "add_subject": "Ders Ekle",
+  "subject_name_placeholder": "Ders adı yaz...",
+  "subject_list": "Ders Listesi",
+  "other_subject": "Diğer",
+  "default_subject": "Varsayılan",
+  "delete": "Sil"
 }

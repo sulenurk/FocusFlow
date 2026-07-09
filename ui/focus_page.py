@@ -90,7 +90,7 @@ class FocusPage(ctk.CTkFrame):
 
         self.timer_hint_label = ctk.CTkLabel(
             self.timer_card,
-            text="One session at a time.",
+            text=self.app.t("one_session_at_a_time"),
             text_color=COLORS["muted"],
             font=ctk.CTkFont(size=14)
         )
@@ -816,3 +816,11 @@ class FocusPage(ctk.CTkFrame):
             self.away_card.grid()
         else:
             self.away_card.grid_remove()
+
+    def refresh_page(self):
+        self.load_active_task()
+        self.update_total_focus_label()
+        self.update_away_metric()
+        self.refresh_away_card_visibility()
+        self.update_queue_progress()
+        self.refresh_queue_progress_visibility()

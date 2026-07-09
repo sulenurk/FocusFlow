@@ -5,6 +5,7 @@ from ui.pomodoro_page import PomodoroPage
 from ui.statistics_page import StatisticsPage
 from ui.focus_page import FocusPage
 from ui.study_plan_page import StudyPlanPage
+from ui.subjects_page import SubjectsPage
 from ui.settings_page import SettingsPage
 
 class FocusFlowApp(ctk.CTk):
@@ -138,6 +139,18 @@ class FocusFlowApp(ctk.CTk):
         )
         self.pomodoro_button.grid(row=3, column=0, padx=20, pady=10, sticky="ew")
 
+        self.subjects_button = ctk.CTkButton(
+            self.sidebar,
+            text=self.t("subjects"),
+            height=42,
+            corner_radius=14,
+            fg_color="#1E293B",
+            hover_color="#334155",
+            anchor="w",
+            command=self.show_subjects_page
+        )
+        self.subjects_button.grid(row=4, column=0, padx=20, pady=10, sticky="ew")
+
         self.statistics_button = ctk.CTkButton(
             self.sidebar,
             text=self.t("statistics"),
@@ -148,7 +161,7 @@ class FocusFlowApp(ctk.CTk):
             anchor="w",
             command=self.show_statistics_page
         )
-        self.statistics_button.grid(row=4, column=0, padx=20, pady=10, sticky="ew")
+        self.statistics_button.grid(row=5, column=0, padx=20, pady=10, sticky="ew")
 
         self.settings_button = ctk.CTkButton(
             self.sidebar,
@@ -160,7 +173,7 @@ class FocusFlowApp(ctk.CTk):
             anchor="w",
             command=self.show_settings_page
         )
-        self.settings_button.grid(row=5, column=0, padx=20, pady=10, sticky="ew")
+        self.settings_button.grid(row=6, column=0, padx=20, pady=10, sticky="ew")
 
         self.language_label = ctk.CTkLabel(
             self.sidebar,
@@ -188,12 +201,14 @@ class FocusFlowApp(ctk.CTk):
         self.focus_page = FocusPage(self.page_container, self)
         self.todo_page = StudyPlanPage(self.page_container, self)
         self.pomodoro_page = PomodoroPage(self.page_container, self)
+        self.subjects_page = SubjectsPage(self.page_container, self)
         self.settings_page = SettingsPage(self.page_container, self)
         self.statistics_page = StatisticsPage(self.page_container, self)
         
         self.focus_page.grid(row=0, column=0, sticky="nsew")
         self.todo_page.grid(row=0, column=0, sticky="nsew")
         self.pomodoro_page.grid(row=0, column=0, sticky="nsew")
+        self.subjects_page.grid(row=0, column=0, sticky="nsew")
         self.statistics_page.grid(row=0, column=0, sticky="nsew")
         self.settings_page.grid(row=0, column=0, sticky="nsew")
 
@@ -201,6 +216,10 @@ class FocusFlowApp(ctk.CTk):
         self.active_page = "focus"
         self.update_sidebar_active_state()
         self.focus_page.tkraise()
+        if hasattr(self.focus_page, "refresh_page"):
+            self.focus_page.refresh_page()
+        elif hasattr(self.focus_page, "refresh_texts"):
+            self.focus_page.refresh_texts()
 
     def show_todo_page(self):
         self.active_page = "study"
@@ -214,6 +233,17 @@ class FocusFlowApp(ctk.CTk):
 
         if hasattr(self, "pomodoro_page"):
             self.pomodoro_page.update_auto_start_info()
+
+    def show_subjects_page(self):
+        self.active_page = "subjects"
+        self.update_sidebar_active_state()
+        self.subjects_page.tkraise()
+
+        if hasattr(self.subjects_page, "refresh_texts"):
+            self.subjects_page.refresh_texts()
+
+        if hasattr(self.subjects_page, "focus_subject_entry"):
+            self.subjects_page.focus_subject_entry()
 
     def show_statistics_page(self):
         self.active_page = "statistics"
@@ -241,6 +271,7 @@ class FocusFlowApp(ctk.CTk):
         self.focus_button.configure(text=self.t("focus_timer"))
         self.todo_button.configure(text=self.t("study_plan"))
         self.pomodoro_button.configure(text=self.t("regular_pomodoro"))
+        self.subjects_button.configure(text=self.t("subjects"))
         self.statistics_button.configure(text=self.t("statistics"))
         self.settings_button.configure(text=self.t("settings"))
         self.language_label.configure(text=self.t("language"))
@@ -248,6 +279,7 @@ class FocusFlowApp(ctk.CTk):
         self.focus_page.refresh_texts()
         self.todo_page.refresh_texts()
         self.pomodoro_page.refresh_texts()
+        self.subjects_page.refresh_texts()
         self.statistics_page.refresh_texts()
         self.settings_page.refresh_texts()
 
@@ -275,6 +307,7 @@ class FocusFlowApp(ctk.CTk):
             "focus": self.focus_button,
             "study": self.todo_button,
             "pomodoro": self.pomodoro_button,
+            "subjects": self.subjects_button,
             "statistics": self.statistics_button,
             "settings": self.settings_button,
         }
@@ -386,17 +419,3 @@ class FocusFlowApp(ctk.CTk):
             self.focus_page.update_queue_progress()
 
         return False
-    
-    def mark_task_completed(self, task_id):
-        if not task_id:
-            return
-
-        for task in self.app_data.get("tasks", []):
-            if task.get("id") == task_id:
-                task["status"] = "completed"
-                break
-
-        self.save_app_data()
-
-        if hasattr(self, "todo_page"):
-            self.todo_page.render_tasks()

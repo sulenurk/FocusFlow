@@ -15,7 +15,7 @@
     "show_queue_progress": true,
     "show_cumulative_away_time": true
   },
-  "total_focus_seconds_today": 4440,
+  "total_focus_seconds_today": 5040,
   "tasks": [],
   "sessions": [
     {
@@ -438,6 +438,87 @@
       "duration_seconds": 60,
       "away_seconds": 0,
       "completed_at": "2026-07-09T07:42:23"
+    },
+    {
+      "id": "session_fa8ed91b",
+      "task_id": "task_d7d73d4c",
+      "task_title": "Çalışma Seansı",
+      "mode": "focus",
+      "duration_seconds": 120,
+      "away_seconds": 4,
+      "completed_at": "2026-07-09T09:47:46"
+    },
+    {
+      "id": "session_7ffb2943",
+      "task_id": null,
+      "task_title": "Regular Pomodoro",
+      "mode": "focus",
+      "source": "regular_pomodoro",
+      "duration_seconds": 120,
+      "away_seconds": 0,
+      "completed_at": "2026-07-09T09:54:21"
+    },
+    {
+      "id": "session_8d6c746f",
+      "task_id": "task_9852fa74",
+      "task_title": "Çalışma Seansı",
+      "mode": "focus",
+      "duration_seconds": 60,
+      "away_seconds": 0,
+      "completed_at": "2026-07-09T10:01:21"
+    },
+    {
+      "id": "session_8732f58f",
+      "task_id": "task_db8ad491",
+      "task_title": "Study Session",
+      "mode": "focus",
+      "duration_seconds": 60,
+      "away_seconds": 52,
+      "completed_at": "2026-07-09T10:18:14"
+    },
+    {
+      "id": "session_b118b2db",
+      "task_id": "task_2711eee4",
+      "task_title": "Study Session",
+      "mode": "focus",
+      "duration_seconds": 60,
+      "away_seconds": 0,
+      "completed_at": "2026-07-09T10:19:34"
+    },
+    {
+      "id": "session_51015351",
+      "task_id": "task_1171f9d6",
+      "task_title": "Study Session",
+      "mode": "focus",
+      "duration_seconds": 180,
+      "away_seconds": 0,
+      "completed_at": "2026-07-09T10:24:39"
+    }
+  ],
+  "subjects": [
+    {
+      "id": "subject_other",
+      "name": "Other",
+      "color": "#6D5DF6",
+      "is_default": true
+    },
+    {
+      "id": "subject_d166b1f2",
+      "name": "Music",
+      "color": "#6D5DF6",
+      "is_default": false
+    },
+    {
+      "id": "subject_5c506390",
+      "name": "Literature",
+      "color": "#6D5DF6",
+      "is_default": false
+    },
+    {
+      "id": "subject_f06c973b",
+      "name": "Chemistry",
+      "color": "#6D5DF6",
+      "is_default": false
     }
   ]
 }
