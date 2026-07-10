@@ -197,5 +197,10 @@
 
   "subject_filter": "Ders Filtresi",
   "subject_filter_subtitle": "İstatistikleri belirli bir derse göre filtrele.",
-  "all_subjects": "Tüm Dersler"
+  "all_subjects": "Tüm Dersler",
+
+  "week_start_day": "Hafta başlangıcı",
+  "week_start_monday": "Pazartesi",
+  "week_start_sunday": "Pazar",
+  "week_start_day_desc": "Haftalık istatistiklerin hangi günden başlayacağını seç."
 }

@@ -46,10 +46,16 @@ class SettingsPage(ctk.CTkFrame):
             anchor="w"
         )
         self.subtitle_label.grid(row=1, column=0, pady=(6, 0), sticky="w")
+    
     def create_settings_card(self):
         self.settings_card = AppCard(self.scroll)
         self.settings_card.grid(row=1, column=0, padx=36, pady=(12, 30), sticky="ew")
         self.settings_card.grid_columnconfigure(0, weight=1)
+
+        self.week_start_options = {
+        "monday": self.app.t("week_start_monday"),
+        "sunday": self.app.t("week_start_sunday")
+}
 
         self.auto_break_frame = self.create_setting_row(
             row=0,
@@ -131,11 +137,55 @@ class SettingsPage(ctk.CTkFrame):
         )
         self.cumulative_away_switch.grid(row=0, column=1, rowspan=2, padx=20, pady=18)
 
+        self.week_start_frame = ctk.CTkFrame(
+            self.settings_card,
+            fg_color=COLORS["surface"],
+            corner_radius=18
+        )
+        self.week_start_frame.grid(row=5, column=0, padx=20, pady=(8, 8), sticky="ew")
+        self.week_start_frame.grid_columnconfigure(0, weight=1)
+
+        self.week_start_label = ctk.CTkLabel(
+            self.week_start_frame,
+            text=self.app.t("week_start_day"),
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=15, weight="bold")
+        )
+        self.week_start_label.grid(row=0, column=0, padx=18, pady=(16, 2), sticky="w")
+
+        self.week_start_desc = ctk.CTkLabel(
+            self.week_start_frame,
+            text=self.app.t("week_start_day_desc"),
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=13),
+            wraplength=520,
+            justify="left"
+        )
+        self.week_start_desc.grid(row=1, column=0, padx=18, pady=(0, 16), sticky="w")
+
+        self.week_start_menu = ctk.CTkOptionMenu(
+            self.week_start_frame,
+            values=[
+                self.app.t("week_start_monday"),
+                self.app.t("week_start_sunday")
+            ],
+            width=220,
+            height=40,
+            fg_color=COLORS["input"],
+            button_color=COLORS["primary"],
+            button_hover_color=COLORS["primary_hover"],
+            text_color=COLORS["input_text"],
+            dropdown_fg_color=COLORS["surface"],
+            dropdown_text_color=COLORS["text"],
+            command=self.change_week_start_day
+        )
+        self.week_start_menu.grid(row=0, column=1, rowspan=2, padx=20, pady=18, sticky="e")
+
         self.goal_frame = ctk.CTkFrame(
             self.settings_card,
             fg_color="transparent"
         )
-        self.goal_frame.grid(row=5, column=0, padx=20, pady=(8, 20), sticky="ew")
+        self.goal_frame.grid(row=6, column=0, padx=20, pady=(8, 20), sticky="ew")
         self.goal_frame.grid_columnconfigure(0, weight=1)
 
         self.goal_title = ctk.CTkLabel(
@@ -175,7 +225,7 @@ class SettingsPage(ctk.CTkFrame):
             text_color=COLORS["green"],
             font=ctk.CTkFont(size=13, weight="bold")
         )
-        self.status_label.grid(row=6, column=0, padx=20, pady=(0, 18), sticky="w")
+        self.status_label.grid(row=7, column=0, padx=20, pady=(0, 18), sticky="w")
 
     def create_setting_row(self, row, title_key, description_key):
         frame = ctk.CTkFrame(
@@ -242,9 +292,30 @@ class SettingsPage(ctk.CTkFrame):
         else:
             self.cumulative_away_switch.deselect()
 
+        settings = self.app.app_data.setdefault("settings", {})
+        week_start_day = settings.get("week_start_day", "monday")
+
+        if week_start_day == "sunday":
+            self.week_start_menu.set(self.app.t("week_start_sunday"))
+        else:
+            self.week_start_menu.set(self.app.t("week_start_monday"))
+
         goal = settings.get("daily_focus_goal_minutes", 300)
         self.goal_entry.delete(0, "end")
         self.goal_entry.insert(0, str(goal))
+
+    def change_week_start_day(self, selected_value):
+        settings = self.app.app_data.setdefault("settings", {})
+
+        if selected_value == self.app.t("week_start_sunday"):
+            settings["week_start_day"] = "sunday"
+        else:
+            settings["week_start_day"] = "monday"
+
+        self.app.save_app_data()
+
+        if hasattr(self.app, "statistics_page"):
+            self.app.statistics_page.refresh_stats()
 
     def save_settings(self):
         settings = self.get_settings()
@@ -263,6 +334,7 @@ class SettingsPage(ctk.CTkFrame):
             pass
 
         settings["show_queue_progress"] = bool(self.queue_progress_switch.get())
+        settings["show_cumulative_away_time"] = bool(self.cumulative_away_switch.get())
 
         if hasattr(self.app, "focus_page"):
             self.app.focus_page.refresh_queue_progress_visibility()
@@ -287,7 +359,26 @@ class SettingsPage(ctk.CTkFrame):
             frame.title_label.configure(text=self.app.t(frame.title_key))
             frame.desc_label.configure(text=self.app.t(frame.description_key))
 
+        self.week_start_label.configure(text=self.app.t("week_start_day"))
+        self.week_start_desc.configure(text=self.app.t("week_start_day_desc"))
+
+        settings = self.app.app_data.setdefault("settings", {})
+        week_start_day = settings.get("week_start_day", "monday")
+
+        self.week_start_menu.configure(
+            values=[
+                self.app.t("week_start_monday"),
+                self.app.t("week_start_sunday")
+            ]
+        )
+
+        if week_start_day == "sunday":
+            self.week_start_menu.set(self.app.t("week_start_sunday"))
+        else:
+            self.week_start_menu.set(self.app.t("week_start_monday"))
+
         self.goal_title.configure(text=self.app.t("daily_focus_goal"))
         self.goal_desc.configure(text=self.app.t("daily_focus_goal_desc"))
         self.goal_entry.configure(placeholder_text=self.app.t("minutes_short"))
         self.save_button.configure(text=self.app.t("save"))
+    

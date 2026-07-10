@@ -19,7 +19,8 @@
     "regular_long_break_minutes": 2,
     "regular_long_break_after": 2,
     "show_queue_progress": true,
-    "show_cumulative_away_time": true
+    "show_cumulative_away_time": true,
+    "week_start_day": "sunday"
   },
   "total_focus_seconds_today": 5040,
   "tasks": [
