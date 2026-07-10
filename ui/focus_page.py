@@ -649,11 +649,17 @@ class FocusPage(ctk.CTkFrame):
     def log_focus_session(self):
         task = self.app.get_active_task()
 
+        if not task:
+            return
+
         session = {
             "id": f"session_{uuid.uuid4().hex[:8]}",
             "task_id": task.get("id") if task else None,
             "task_title": task.get("title") if task else None,
+            "subject_id": task.get("subject_id", "subject_other"),
+            "subject_name": task.get("subject_name", self.app.t("other_subject")),
             "mode": "focus",
+            "source": "study_plan",
             "duration_seconds": self.focus_seconds,
             "away_seconds": self.session_away_seconds,
             "completed_at": datetime.now().isoformat(timespec="seconds")

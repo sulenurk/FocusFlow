@@ -1,6 +1,6 @@
 import uuid
 import customtkinter as ctk
-
+from datetime import datetime
 from ui.theme import COLORS
 from ui.components import (
     AppCard,
@@ -663,12 +663,56 @@ class StudyPlanPage(ctk.CTkFrame):
 
         self.render_tasks()
 
+    def log_manual_completion_session(self, task):
+        existing_sessions = self.app.app_data.get("sessions", [])
+
+        already_logged = any(
+            session.get("task_id") == task.get("id")
+            and session.get("source") == "study_plan"
+            for session in existing_sessions
+        )
+
+        if already_logged:
+            return
+
+        session = {
+            "id": f"session_{uuid.uuid4().hex[:8]}",
+            "task_id": task.get("id"),
+            "task_title": task.get("title", self.app.t("default_task_name")),
+            "subject_id": task.get("subject_id", "subject_other"),
+            "subject_name": task.get("subject_name", self.app.t("other_subject")),
+            "mode": "focus",
+            "source": "study_plan",
+            "duration_seconds": task.get("focus_minutes", 0) * 60,
+            "away_seconds": 0,
+            "completed_at": datetime.now().isoformat(timespec="seconds")
+        }
+
+        self.app.app_data.setdefault("sessions", []).append(session)
+
     def complete_task(self, task_id):
+        completed_task = None
+
         for task in self.app.app_data.get("tasks", []):
             if task.get("id") == task_id:
                 task["status"] = "completed"
+                task["completed_at"] = datetime.now().isoformat(timespec="seconds")
+                completed_task = task
+                break
+
+        if completed_task:
+            self.log_manual_completion_session(completed_task)
 
         self.app.save_app_data()
+
+        if hasattr(self.app, "focus_page"):
+            self.app.focus_page.load_active_task()
+            self.app.focus_page.update_queue_progress()
+            self.app.focus_page.refresh_queue_progress_visibility()
+
+        if hasattr(self.app, "statistics_page"):
+            self.app.statistics_page.refresh_stats()
+
         self.render_tasks()
 
     def refresh_texts(self):
@@ -972,17 +1016,23 @@ class TaskCard(AppCard):
 
         self.grid_columnconfigure(1, weight=1)
 
-        subject = task.get("subject", "other")
-        subject_meta = SUBJECT_META.get(subject, SUBJECT_META["other"])
+        subject_name = task.get("subject_name")
+
+        if not subject_name:
+            old_subject_key = task.get("subject", "other")
+            subject_name = self.app.t(old_subject_key)
+
+        subject_key = task.get("subject", "other")
+        subject_meta = SUBJECT_META.get(subject_key, SUBJECT_META["other"])
 
         self.icon = SubjectIcon(
             self,
-            subject_key=subject,
+            subject_key=subject_key,
             icon_text=subject_meta["icon"]
         )
         self.icon.grid(row=0, column=0, rowspan=2, padx=(18, 14), pady=16)
 
-        title_text = f"{self.app.t(subject)} - {task.get('title', '')}"
+        title_text = f"{subject_name} - {task.get('title', '')}"
 
         self.title = ctk.CTkLabel(
             self,
@@ -1086,17 +1136,3 @@ class TaskCard(AppCard):
                 fg_color=COLORS["surface"],
                 text_color=COLORS["muted"]
             )
-
-    def refresh_subject_menu(self):
-        if not hasattr(self, "subject_menu"):
-            return
-
-        current_subject = self.subject_menu.get()
-        subject_names = self.get_subject_names()
-
-        self.subject_menu.configure(values=subject_names)
-
-        if current_subject in subject_names:
-            self.subject_menu.set(current_subject)
-        elif subject_names:
-            self.subject_menu.set(subject_names[0])

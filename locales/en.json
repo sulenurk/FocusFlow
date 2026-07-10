@@ -186,5 +186,9 @@
   "subject_list": "Subject List",
   "other_subject": "Other",
   "default_subject": "Default",
-  "delete": "Delete"
+  "delete": "Delete",
+
+  "weekly_subject_distribution": "Weekly Subject Distribution",
+  "weekly_total": "Weekly total",
+  "no_subject_stats": "No subject-based study records yet this week."
 }
