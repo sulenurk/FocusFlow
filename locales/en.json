@@ -196,5 +196,10 @@
 
   "subject_filter": "Subject Filter",
   "subject_filter_subtitle": "Filter statistics by a specific subject.",
-  "all_subjects": "All Subjects"
+  "all_subjects": "All Subjects",
+
+  "week_start_day": "Week starts on",
+  "week_start_monday": "Monday",
+  "week_start_sunday": "Sunday",
+  "week_start_day_desc": "Choose which day weekly statistics should start from."
 }

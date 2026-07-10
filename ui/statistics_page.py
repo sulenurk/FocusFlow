@@ -450,6 +450,17 @@ class StatisticsPage(ctk.CTkFrame):
 
         return self.app.t("other_subject")
 
+    def get_week_start_date(self):
+        today = date.today()
+        settings = self.app.app_data.get("settings", {})
+        week_start_day = settings.get("week_start_day", "monday")
+
+        if week_start_day == "sunday":
+            days_since_sunday = (today.weekday() + 1) % 7
+            return today - timedelta(days=days_since_sunday)
+
+        return today - timedelta(days=today.weekday())
+
     def get_today_sessions(self):
         today_str = date.today().isoformat()
         sessions = self.app.app_data.get("sessions", [])
@@ -484,7 +495,7 @@ class StatisticsPage(ctk.CTkFrame):
     def get_weekly_focus_seconds(self, subject_id="all"):
         sessions = self.app.app_data.get("sessions", [])
         today = date.today()
-        start_of_week = today - timedelta(days=today.weekday())
+        start_of_week = self.get_week_start_date()
 
         daily_totals = {}
 
@@ -516,7 +527,7 @@ class StatisticsPage(ctk.CTkFrame):
     def get_weekly_focus_by_subject(self):
         sessions = self.app.app_data.get("sessions", [])
         today = date.today()
-        start_of_week = today - timedelta(days=today.weekday())
+        start_of_week = self.get_week_start_date()
 
         subject_totals = {}
 
@@ -627,10 +638,11 @@ class StatisticsPage(ctk.CTkFrame):
         self.refresh_weekly_overview()
         self.render_recent_sessions()
 
-    def refresh_weekly_overview(self):
-        daily_totals = self.get_weekly_focus_seconds(self.selected_subject_id)
+    def get_week_day_labels(self):
+        settings = self.app.app_data.get("settings", {})
+        week_start_day = settings.get("week_start_day", "monday")
 
-        day_names = [
+        monday_first = [
             self.app.t("day_mon_short"),
             self.app.t("day_tue_short"),
             self.app.t("day_wed_short"),
@@ -640,6 +652,24 @@ class StatisticsPage(ctk.CTkFrame):
             self.app.t("day_sun_short"),
         ]
 
+        if week_start_day == "sunday":
+            return [
+                self.app.t("day_sun_short"),
+                self.app.t("day_mon_short"),
+                self.app.t("day_tue_short"),
+                self.app.t("day_wed_short"),
+                self.app.t("day_thu_short"),
+                self.app.t("day_fri_short"),
+                self.app.t("day_sat_short"),
+            ]
+
+        return monday_first
+
+    def refresh_weekly_overview(self):
+        daily_totals = self.get_weekly_focus_seconds(self.selected_subject_id)
+
+        day_names = self.get_week_day_labels()
+        
         values = [
             seconds // 60
             for seconds in daily_totals.values()
