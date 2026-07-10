@@ -187,5 +187,9 @@
   "subject_list": "Ders Listesi",
   "other_subject": "Diğer",
   "default_subject": "Varsayılan",
-  "delete": "Sil"
+  "delete": "Sil",
+
+  "weekly_subject_distribution": "Haftalık Ders Dağılımı",
+  "weekly_total": "Haftalık toplam",
+  "no_subject_stats": "Bu hafta henüz ders bazlı çalışma kaydı yok."
 }

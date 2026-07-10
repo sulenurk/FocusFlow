@@ -752,6 +752,8 @@ class PomodoroPage(ctk.CTkFrame):
             "id": f"session_{uuid.uuid4().hex[:8]}",
             "task_id": None,
             "task_title": "Regular Pomodoro",
+            "subject_id": "subject_other",
+            "subject_name": self.app.t("other_subject"),
             "mode": "focus",
             "source": "regular_pomodoro",
             "duration_seconds": self.focus_seconds,

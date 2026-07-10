@@ -16,483 +16,67 @@
     "show_cumulative_away_time": true
   },
   "total_focus_seconds_today": 5040,
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "task_3b383518",
+      "subject_id": "subject_d166b1f2",
+      "subject_name": "Music",
+      "title": "Study Session",
+      "focus_minutes": 25,
+      "break_minutes": 5,
+      "priority": "medium",
+      "status": "completed",
+      "hidden_from_plan": false,
+      "completed_at": "2026-07-10T01:51:16"
+    },
+    {
+      "id": "task_908be5e6",
+      "subject_id": "subject_5c506390",
+      "subject_name": "Literature",
+      "title": "Study Session",
+      "focus_minutes": 25,
+      "break_minutes": 5,
+      "priority": "medium",
+      "status": "pending",
+      "hidden_from_plan": false
+    },
+    {
+      "id": "task_66d18fb7",
+      "subject_id": "subject_f06c973b",
+      "subject_name": "Chemistry",
+      "title": "Study Session",
+      "focus_minutes": 25,
+      "break_minutes": 5,
+      "priority": "medium",
+      "status": "completed",
+      "hidden_from_plan": false,
+      "completed_at": "2026-07-10T01:51:16"
+    }
+  ],
   "sessions": [
     {
-      "id": "session_c6cba399",
-      "task_id": "task_32a13d8e",
-      "task_title": "llm",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T02:27:02"
-    },
-    {
-      "id": "session_6fbad8de",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T02:46:14"
-    },
-    {
-      "id": "session_e1832189",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T02:53:00"
-    },
-    {
-      "id": "session_dbe90578",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T03:05:19"
-    },
-    {
-      "id": "session_39e8d7b3",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T03:07:20"
-    },
-    {
-      "id": "session_317088d2",
-      "task_id": "task_22ef73f6",
-      "task_title": "lim",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T03:20:28"
-    },
-    {
-      "id": "session_b1ffc2a1",
-      "task_id": "task_14d64e2a",
-      "task_title": "Çalışma Seansı",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T03:52:14"
-    },
-    {
-      "id": "session_be2f570c",
-      "task_id": "task_115fcfd4",
+      "id": "session_8284cb6a",
+      "task_id": "task_3b383518",
       "task_title": "Study Session",
+      "subject_id": "subject_d166b1f2",
+      "subject_name": "Music",
       "mode": "focus",
-      "duration_seconds": 180,
+      "source": "study_plan",
+      "duration_seconds": 1500,
       "away_seconds": 0,
-      "completed_at": "2026-07-08T04:47:35"
+      "completed_at": "2026-07-10T01:51:16"
     },
     {
-      "id": "session_3f4dec5d",
-      "task_id": "task_76d8cd2b",
+      "id": "session_d7c15a39",
+      "task_id": "task_66d18fb7",
       "task_title": "Study Session",
+      "subject_id": "subject_f06c973b",
+      "subject_name": "Chemistry",
       "mode": "focus",
-      "duration_seconds": 120,
+      "source": "study_plan",
+      "duration_seconds": 1500,
       "away_seconds": 0,
-      "completed_at": "2026-07-08T04:50:36"
-    },
-    {
-      "id": "session_06725267",
-      "task_id": "task_ab311983",
-      "task_title": "Study Session",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T07:56:18"
-    },
-    {
-      "id": "session_a7603316",
-      "task_id": "task_6717cbb3",
-      "task_title": "Study Session",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T07:58:19"
-    },
-    {
-      "id": "session_23db43d6",
-      "task_id": "task_6908339e",
-      "task_title": "Study Session",
-      "mode": "focus",
-      "duration_seconds": 180,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T08:45:23"
-    },
-    {
-      "id": "session_d7b5739c",
-      "task_id": "task_531f45c6",
-      "task_title": "Çalışma Seansı",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-08T09:09:22"
-    },
-    {
-      "id": "session_0565e5c8",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:19:41"
-    },
-    {
-      "id": "session_5d1e0102",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:20:52"
-    },
-    {
-      "id": "session_0f2d585a",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:30:02"
-    },
-    {
-      "id": "session_9aa5a494",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:30:17"
-    },
-    {
-      "id": "session_a1688bbc",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:45:52"
-    },
-    {
-      "id": "session_46b50e5d",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:45:59"
-    },
-    {
-      "id": "session_422e3a70",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:46:59"
-    },
-    {
-      "id": "session_9d0ef204",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:47:13"
-    },
-    {
-      "id": "session_a2c0b383",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:49:14"
-    },
-    {
-      "id": "session_2e225429",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:51:19"
-    },
-    {
-      "id": "session_a4d2d980",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:53:20"
-    },
-    {
-      "id": "session_9b721a07",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:56:21"
-    },
-    {
-      "id": "session_fb5b83cc",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T06:58:22"
-    },
-    {
-      "id": "session_f1a331a6",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:01:23"
-    },
-    {
-      "id": "session_dfa6efaf",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:03:24"
-    },
-    {
-      "id": "session_8bbd77a4",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:06:26"
-    },
-    {
-      "id": "session_2dd501e7",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:08:28"
-    },
-    {
-      "id": "session_5b466e5e",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:11:30"
-    },
-    {
-      "id": "session_80647995",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:13:31"
-    },
-    {
-      "id": "session_86468e36",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:16:32"
-    },
-    {
-      "id": "session_f8081a32",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:18:33"
-    },
-    {
-      "id": "session_7794944b",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:19:53"
-    },
-    {
-      "id": "session_91322a05",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:19:57"
-    },
-    {
-      "id": "session_26ff65be",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:20:04"
-    },
-    {
-      "id": "session_006deb1a",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:34:57"
-    },
-    {
-      "id": "session_491074d0",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:36:21"
-    },
-    {
-      "id": "session_5a5dd4d8",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:39:09"
-    },
-    {
-      "id": "session_3b21b15c",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:39:17"
-    },
-    {
-      "id": "session_7976ea77",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:40:22"
-    },
-    {
-      "id": "session_04282d36",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T07:42:23"
-    },
-    {
-      "id": "session_fa8ed91b",
-      "task_id": "task_d7d73d4c",
-      "task_title": "Çalışma Seansı",
-      "mode": "focus",
-      "duration_seconds": 120,
-      "away_seconds": 4,
-      "completed_at": "2026-07-09T09:47:46"
-    },
-    {
-      "id": "session_7ffb2943",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 120,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T09:54:21"
-    },
-    {
-      "id": "session_8d6c746f",
-      "task_id": "task_9852fa74",
-      "task_title": "Çalışma Seansı",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T10:01:21"
-    },
-    {
-      "id": "session_8732f58f",
-      "task_id": "task_db8ad491",
-      "task_title": "Study Session",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 52,
-      "completed_at": "2026-07-09T10:18:14"
-    },
-    {
-      "id": "session_b118b2db",
-      "task_id": "task_2711eee4",
-      "task_title": "Study Session",
-      "mode": "focus",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T10:19:34"
-    },
-    {
-      "id": "session_51015351",
-      "task_id": "task_1171f9d6",
-      "task_title": "Study Session",
-      "mode": "focus",
-      "duration_seconds": 180,
-      "away_seconds": 0,
-      "completed_at": "2026-07-09T10:24:39"
+      "completed_at": "2026-07-10T01:51:16"
     }
   ],
   "subjects": [
@@ -501,24 +85,6 @@
       "name": "Other",
       "color": "#6D5DF6",
       "is_default": true
-    },
-    {
-      "id": "subject_d166b1f2",
-      "name": "Music",
-      "color": "#6D5DF6",
-      "is_default": false
-    },
-    {
-      "id": "subject_5c506390",
-      "name": "Literature",
-      "color": "#6D5DF6",
-      "is_default": false
-    },
-    {
-      "id": "subject_f06c973b",
-      "name": "Chemistry",
-      "color": "#6D5DF6",
-      "is_default": false
     }
   ]
 }

@@ -26,6 +26,7 @@ class StatisticsPage(ctk.CTkFrame):
         self.create_metric_grid()
         self.create_breakdown_card()
         self.create_goal_card()
+        self.create_subject_distribution_card()
         self.create_weekly_card()
         self.create_recent_sessions_card()
 
@@ -167,9 +168,55 @@ class StatisticsPage(ctk.CTkFrame):
         self.goal_progress.grid(row=2, column=0, padx=22, pady=(0, 24), sticky="ew")
         self.goal_progress.set(0)
 
+    def create_subject_distribution_card(self):
+        self.subject_distribution_card = AppCard(self.scroll)
+        self.subject_distribution_card.grid(row=4, column=0, padx=36, pady=(8, 12), sticky="ew")
+        self.subject_distribution_card.grid_columnconfigure(0, weight=1)
+
+        self.subject_distribution_title = ctk.CTkLabel(
+            self.subject_distribution_card,
+            text=self.app.t("weekly_subject_distribution"),
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+        self.subject_distribution_title.grid(
+            row=0,
+            column=0,
+            padx=22,
+            pady=(20, 6),
+            sticky="w"
+        )
+
+        self.subject_distribution_subtitle = ctk.CTkLabel(
+            self.subject_distribution_card,
+            text="",
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=13)
+        )
+        self.subject_distribution_subtitle.grid(
+            row=1,
+            column=0,
+            padx=22,
+            pady=(0, 12),
+            sticky="w"
+        )
+
+        self.subject_distribution_frame = ctk.CTkFrame(
+            self.subject_distribution_card,
+            fg_color="transparent"
+        )
+        self.subject_distribution_frame.grid(
+            row=2,
+            column=0,
+            padx=22,
+            pady=(0, 22),
+            sticky="ew"
+        )
+        self.subject_distribution_frame.grid_columnconfigure(0, weight=1)
+
     def create_weekly_card(self):
         self.weekly_card = AppCard(self.scroll)
-        self.weekly_card.grid(row=4, column=0, padx=36, pady=(8, 30), sticky="nsew")
+        self.weekly_card.grid(row=5, column=0, padx=36, pady=(8, 30), sticky="nsew")
         self.weekly_card.grid_columnconfigure(0, weight=1)
 
         self.weekly_title = ctk.CTkLabel(
@@ -216,7 +263,7 @@ class StatisticsPage(ctk.CTkFrame):
 
     def create_recent_sessions_card(self):
         self.recent_card = AppCard(self.scroll)
-        self.recent_card.grid(row=5, column=0, padx=36, pady=(8, 30), sticky="ew")
+        self.recent_card.grid(row=6, column=0, padx=36, pady=(8, 30), sticky="ew")
         self.recent_card.grid_columnconfigure(0, weight=1)
 
         self.recent_title = ctk.CTkLabel(
@@ -293,6 +340,41 @@ class StatisticsPage(ctk.CTkFrame):
                 daily_totals[key] += session.get("duration_seconds", 0)
 
         return daily_totals
+    
+    def get_weekly_focus_by_subject(self):
+        sessions = self.app.app_data.get("sessions", [])
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+
+        subject_totals = {}
+
+        for session in sessions:
+            if session.get("mode") != "focus":
+                continue
+
+            completed_at = session.get("completed_at", "")
+
+            try:
+                session_date = datetime.fromisoformat(completed_at).date()
+            except ValueError:
+                continue
+
+            if session_date < start_of_week or session_date > today:
+                continue
+
+            subject_id = session.get("subject_id", "subject_other")
+            subject_name = session.get("subject_name", self.app.t("other_subject"))
+            duration_seconds = session.get("duration_seconds", 0)
+
+            if subject_id not in subject_totals:
+                subject_totals[subject_id] = {
+                    "name": subject_name,
+                    "seconds": 0
+                }
+
+            subject_totals[subject_id]["seconds"] += duration_seconds
+
+        return subject_totals
 
     def format_hours_minutes(self, seconds):
         total_minutes = seconds // 60
@@ -368,6 +450,7 @@ class StatisticsPage(ctk.CTkFrame):
             text=f"{percent}% · {total_focus_text} / {goal_text}"
         )
 
+        self.render_subject_distribution()
         self.refresh_weekly_overview()
         self.render_recent_sessions()
 
@@ -391,11 +474,86 @@ class StatisticsPage(ctk.CTkFrame):
             value_label.configure(text=f"{minutes}{self.app.t('minute_short')}")
             day_label.configure(text=day_names[index])
 
+    def render_subject_distribution(self):
+        for widget in self.subject_distribution_frame.winfo_children():
+            widget.destroy()
+
+        subject_totals = self.get_weekly_focus_by_subject()
+
+        total_seconds = sum(
+            item.get("seconds", 0)
+            for item in subject_totals.values()
+        )
+
+        total_minutes = total_seconds // 60
+
+        self.subject_distribution_subtitle.configure(
+            text=f"{self.app.t('weekly_total')}: {total_minutes}{self.app.t('minute_short')}"
+        )
+
+        if total_seconds <= 0:
+            empty_label = ctk.CTkLabel(
+                self.subject_distribution_frame,
+                text=self.app.t("no_subject_stats"),
+                text_color=COLORS["muted"],
+                font=ctk.CTkFont(size=14)
+            )
+            empty_label.grid(row=0, column=0, padx=4, pady=12, sticky="w")
+            return
+
+        sorted_subjects = sorted(
+            subject_totals.values(),
+            key=lambda item: item.get("seconds", 0),
+            reverse=True
+        )
+
+        for row_index, item in enumerate(sorted_subjects):
+            seconds = item.get("seconds", 0)
+            minutes = seconds // 60
+            ratio = seconds / total_seconds if total_seconds else 0
+            percent = int(round(ratio * 100))
+
+            row = ctk.CTkFrame(
+                self.subject_distribution_frame,
+                fg_color=COLORS["surface"],
+                corner_radius=14
+            )
+            row.grid(row=row_index, column=0, pady=6, sticky="ew")
+            row.grid_columnconfigure(1, weight=1)
+
+            name_label = ctk.CTkLabel(
+                row,
+                text=item.get("name", self.app.t("other_subject")),
+                text_color=COLORS["text"],
+                font=ctk.CTkFont(size=14, weight="bold"),
+                anchor="w"
+            )
+            name_label.grid(row=0, column=0, padx=(16, 12), pady=(12, 4), sticky="w")
+
+            value_label = ctk.CTkLabel(
+                row,
+                text=f"{minutes}{self.app.t('minute_short')} · {percent}%",
+                text_color=COLORS["muted"],
+                font=ctk.CTkFont(size=13)
+            )
+            value_label.grid(row=0, column=2, padx=(12, 16), pady=(12, 4), sticky="e")
+
+            progress = ctk.CTkProgressBar(
+                row,
+                height=10,
+                corner_radius=8,
+                progress_color=COLORS["primary"],
+                fg_color=COLORS["card_soft"]
+            )
+            progress.grid(row=1, column=0, columnspan=3, padx=16, pady=(0, 14), sticky="ew")
+            progress.set(ratio)
+
     def refresh_texts(self):
         self.title_label.configure(text=self.app.t("statistics"))
         self.subtitle_label.configure(text=self.app.t("statistics_subtitle"))
         self.breakdown_title.configure(text=self.app.t("focus_breakdown"))
         self.goal_title.configure(text=self.app.t("goal_progress"))
+        self.subject_distribution_title.configure(text=self.app.t("weekly_subject_distribution"))
         self.weekly_title.configure(text=self.app.t("weekly_overview"))
         self.recent_title.configure(text=self.app.t("recent_sessions"))
         self.session_hint_label.configure(text=self.app.t("one_session_at_a_time"))
