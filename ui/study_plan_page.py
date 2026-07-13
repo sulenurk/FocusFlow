@@ -1232,13 +1232,13 @@ class TaskCard(AppCard):
         if self.on_drag_start:
             self.drag_handle.bind(
                 "<Button-1>",
-                lambda event: self.on_drag_start(task.get("id"))
+                self.handle_drag_start
             )
 
         if self.on_drag_release:
             self.drag_handle.bind(
                 "<ButtonRelease-1>",
-                lambda event: self.on_drag_release(task.get("id"), event)
+                self.handle_drag_release
             )
 
         if self.is_active:
@@ -1282,6 +1282,9 @@ class TaskCard(AppCard):
             self.drag_handle.unbind("<ButtonRelease-1>")
 
     def set_dragging_style(self):
+        if self.is_completed:
+            return
+
         self.configure(
             fg_color=COLORS["surface"],
             border_width=2,
@@ -1290,10 +1293,17 @@ class TaskCard(AppCard):
 
         self.title.configure(text_color=COLORS["muted"])
         self.details.configure(text_color=COLORS["muted"])
-        self.drag_handle.configure(text_color=COLORS["primary"])
+
+        self.drag_handle.configure(
+            text_color=COLORS["primary"],
+            font=ctk.CTkFont(size=21, weight="bold")
+        )
 
 
     def reset_dragging_style(self):
+        if self.is_completed:
+            return
+
         border_color = COLORS["primary"] if self.is_active else COLORS["card_border"]
         fg_color = COLORS["surface"] if self.is_completed else COLORS["card"]
 
@@ -1306,10 +1316,19 @@ class TaskCard(AppCard):
         self.title.configure(
             text_color=COLORS["muted"] if self.is_completed else COLORS["text"]
         )
+
         self.details.configure(text_color=COLORS["muted"])
-        self.drag_handle.configure(text_color=COLORS["muted"])
+
+        self.drag_handle.configure(
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+
 
     def handle_drag_start(self, event):
+        if self.is_completed:
+            return
+
         self.set_dragging_style()
 
         if self.on_drag_start:
@@ -1317,6 +1336,9 @@ class TaskCard(AppCard):
 
 
     def handle_drag_release(self, event):
+        if self.is_completed:
+            return
+
         self.reset_dragging_style()
 
         if self.on_drag_release:
