@@ -50,6 +50,95 @@ class SettingsPage(ctk.CTkFrame):
             anchor="w"
         )
         self.subtitle_label.grid(row=1, column=0, pady=(6, 0), sticky="w")
+
+    def import_app_data(self):
+        file_path = filedialog.askopenfilename(
+            title=self.app.t("select_backup_file"),
+            filetypes=[("JSON files", "*.json")]
+        )
+
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                imported_data = json.load(file)
+
+            if not isinstance(imported_data, dict):
+                raise ValueError("Invalid data format")
+
+            required_keys = ["settings", "tasks", "subjects", "sessions"]
+
+            for key in required_keys:
+                if key not in imported_data:
+                    raise ValueError("Missing FocusFlow data keys")
+
+            if not isinstance(imported_data.get("settings"), dict):
+                raise ValueError("Invalid settings format")
+
+            if not isinstance(imported_data.get("tasks"), list):
+                raise ValueError("Invalid tasks format")
+
+            if not isinstance(imported_data.get("subjects"), list):
+                raise ValueError("Invalid subjects format")
+
+            if not isinstance(imported_data.get("sessions"), list):
+                raise ValueError("Invalid sessions format")
+
+            self.app.app_data.clear()
+            self.app.app_data.update(imported_data)
+
+            if hasattr(self.app, "ensure_app_data_defaults"):
+                self.app.ensure_app_data_defaults()
+            else:
+                self.app.save_app_data()
+
+            self.refresh_after_import()
+
+            self.status_label.configure(
+                text=self.app.t("data_imported"),
+                text_color=COLORS["green"]
+            )
+
+        except Exception:
+            self.status_label.configure(
+                text=self.app.t("data_import_failed"),
+                text_color=COLORS["red"]
+            )
+
+        self.after(3000, lambda: self.status_label.configure(text=""))
+    
+    def refresh_after_import(self):
+        self.load_settings()
+
+        if hasattr(self.app, "todo_page"):
+            if hasattr(self.app.todo_page, "refresh_subject_menu"):
+                self.app.todo_page.refresh_subject_menu()
+            self.app.todo_page.render_tasks()
+
+        if hasattr(self.app, "focus_page"):
+            self.app.focus_page.load_active_task()
+            self.app.focus_page.update_queue_progress()
+            self.app.focus_page.refresh_queue_progress_visibility()
+            if hasattr(self.app.focus_page, "refresh_away_card_visibility"):
+                self.app.focus_page.refresh_away_card_visibility()
+
+        if hasattr(self.app, "pomodoro_page"):
+            self.app.pomodoro_page.load_pomodoro_settings()
+            self.app.pomodoro_page.populate_settings_entries()
+            self.app.pomodoro_page.update_timer_label()
+            self.app.pomodoro_page.update_mode_ui()
+            self.app.pomodoro_page.update_cycle_labels()
+            self.app.pomodoro_page.update_session_info_values()
+            self.app.pomodoro_page.update_auto_start_info()
+
+        if hasattr(self.app, "subjects_page"):
+            self.app.subjects_page.render_subjects()
+
+        if hasattr(self.app, "statistics_page"):
+            if hasattr(self.app.statistics_page, "refresh_subject_filter_menu"):
+                self.app.statistics_page.refresh_subject_filter_menu()
+            self.app.statistics_page.refresh_stats()
     
     def create_settings_card(self):
         self.settings_card = AppCard(self.scroll)
@@ -57,8 +146,8 @@ class SettingsPage(ctk.CTkFrame):
         self.settings_card.grid_columnconfigure(0, weight=1)
 
         self.week_start_options = {
-        "monday": self.app.t("week_start_monday"),
-        "sunday": self.app.t("week_start_sunday")
+            "monday": self.app.t("week_start_monday"),
+            "sunday": self.app.t("week_start_sunday")
 }
 
         self.auto_break_frame = self.create_setting_row(
@@ -234,7 +323,6 @@ class SettingsPage(ctk.CTkFrame):
         self.data_frame.grid(row=7, column=0, padx=20, pady=(8, 20), sticky="ew")
         self.data_frame.grid_columnconfigure(0, weight=1)
         self.data_frame.grid_columnconfigure(1, weight=1)
-        self.data_frame.grid_columnconfigure(2, weight=1)
 
         self.data_title = ctk.CTkLabel(
             self.data_frame,
@@ -258,31 +346,39 @@ class SettingsPage(ctk.CTkFrame):
             self.data_frame,
             text=self.app.t("export_data"),
             command=self.export_app_data,
-            width=120
+            width=140
         )
-        self.export_data_button.grid(row=2, column=0, padx=(18, 6), pady=(0, 18), sticky="ew")
+        self.export_data_button.grid(row=2, column=0, padx=(18, 8), pady=(0, 10), sticky="ew")
+
+        self.import_data_button = PrimaryButton(
+            self.data_frame,
+            text=self.app.t("import_data"),
+            command=self.import_app_data,
+            width=140
+        )
+        self.import_data_button.grid(row=2, column=1, padx=(8, 18), pady=(0, 10), sticky="ew")
 
         self.reset_stats_button = PrimaryButton(
             self.data_frame,
             text=self.app.t("reset_statistics"),
             command=self.confirm_reset_statistics,
-            width=120
+            width=140
         )
-        self.reset_stats_button.grid(row=2, column=1, padx=6, pady=(0, 18), sticky="ew")
+        self.reset_stats_button.grid(row=3, column=0, padx=(18, 8), pady=(0, 18), sticky="ew")
 
         self.reset_app_button = PrimaryButton(
             self.data_frame,
             text=self.app.t("reset_application"),
             command=self.confirm_reset_application,
-            width=120
+            width=140
         )
-        self.reset_app_button.grid(row=2, column=2, padx=(6, 18), pady=(0, 18), sticky="ew")
+        self.reset_app_button.grid(row=3, column=1, padx=(8, 18), pady=(0, 18), sticky="ew")
+        
         self.status_label = ctk.CTkLabel(
             self.settings_card,
             text="",
             text_color=COLORS["green"],
-            font=ctk.CTkFont(size=13, weight="bold")
-        )
+            font=ctk.CTkFont(size=13, weight="bold"))
         self.status_label.grid(row=8, column=0, padx=20, pady=(0, 18), sticky="w")
 
     def export_app_data(self):
@@ -595,5 +691,6 @@ class SettingsPage(ctk.CTkFrame):
         self.data_title.configure(text=self.app.t("data_management"))
         self.data_desc.configure(text=self.app.t("data_management_desc"))
         self.export_data_button.configure(text=self.app.t("export_data"))
+        self.import_data_button.configure(text=self.app.t("import_data"))
         self.reset_stats_button.configure(text=self.app.t("reset_statistics"))
         self.reset_app_button.configure(text=self.app.t("reset_application"))

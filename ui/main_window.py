@@ -16,7 +16,8 @@ class FocusFlowApp(ctk.CTk):
         self.data_path = self.base_path / "data" / "app_data.json"
 
         self.app_data = self.load_app_data()
-        self.language = self.app_data.get("language", "tr")
+        self.ensure_app_data_defaults()
+        self.language = self.app_data.get("language", "en")
         self.translations = self.load_translations()
 
         self.active_page = "pomodoro"
@@ -36,6 +37,67 @@ class FocusFlowApp(ctk.CTk):
         self.create_pages()
 
         self.show_pomodoro_page()
+
+    def ensure_app_data_defaults(self):
+        self.app_data.setdefault("language", "en")
+
+        self.app_data.setdefault("active_task_id", None)
+        self.app_data.setdefault("queue_mode_active", False)
+        self.app_data.setdefault("queue_task_ids", [])
+        self.app_data.setdefault("last_queue_state", None)
+
+        settings = self.app_data.setdefault("settings", {})
+
+        default_settings = {
+            "auto_start_break": False,
+            "auto_start_focus": False,
+            "sound_enabled": True,
+            "daily_focus_goal_minutes": 300,
+            "regular_focus_minutes": 25,
+            "regular_short_break_minutes": 5,
+            "regular_long_break_minutes": 15,
+            "regular_long_break_after": 4,
+            "regular_focus_count": 4,
+            "show_queue_progress": True,
+            "show_cumulative_away_time": True,
+            "week_start_day": "monday"
+        }
+
+        for key, value in default_settings.items():
+            settings.setdefault(key, value)
+
+        self.app_data.setdefault("tasks", [])
+        self.app_data.setdefault("sessions", [])
+
+        subjects = self.app_data.setdefault("subjects", [])
+
+        default_subject = None
+
+        for subject in subjects:
+            if subject.get("id") == "subject_other" or subject.get("is_default"):
+                default_subject = subject
+                break
+
+        if default_subject is None:
+            subjects.insert(0, {
+                "id": "subject_other",
+                "name_key": "other_subject",
+                "color": "#A78BFA",
+                "is_default": True
+            })
+        else:
+            default_subject["id"] = "subject_other"
+            default_subject["name_key"] = "other_subject"
+            default_subject["is_default"] = True
+            default_subject.setdefault("color", "#A78BFA")
+            default_subject.pop("name", None)
+
+        for task in self.app_data.get("tasks", []):
+            task.setdefault("status", "pending")
+            task.setdefault("hidden_from_plan", False)
+            task.setdefault("hidden_from_completed", False)
+
+        self.save_app_data()
 
     def load_app_data(self):
         with open(self.data_path, "r", encoding="utf-8") as file:
