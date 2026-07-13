@@ -1,5 +1,8 @@
 import customtkinter as ctk
-
+import json
+import os
+from datetime import datetime
+from tkinter import filedialog
 from ui.theme import COLORS
 from ui.components import AppCard, PageTitle, PageSubtitle, PrimaryButton, AppEntry
 
@@ -219,13 +222,100 @@ class SettingsPage(ctk.CTkFrame):
         )
         self.save_button.grid(row=0, column=2, rowspan=2, sticky="e")
 
+        self.data_frame = ctk.CTkFrame(
+            self.settings_card,
+            fg_color=COLORS["surface"],
+            corner_radius=18
+        )
+        self.data_frame.grid(row=7, column=0, padx=20, pady=(8, 20), sticky="ew")
+        self.data_frame.grid_columnconfigure(0, weight=1)
+        self.data_frame.grid_columnconfigure(1, weight=1)
+
+        self.data_title = ctk.CTkLabel(
+            self.data_frame,
+            text=self.app.t("data_management"),
+            text_color=COLORS["text"],
+            font=ctk.CTkFont(size=15, weight="bold")
+        )
+        self.data_title.grid(row=0, column=0, columnspan=2, padx=18, pady=(16, 2), sticky="w")
+
+        self.data_desc = ctk.CTkLabel(
+            self.data_frame,
+            text=self.app.t("data_management_desc"),
+            text_color=COLORS["muted"],
+            font=ctk.CTkFont(size=13),
+            wraplength=520,
+            justify="left"
+        )
+        self.data_desc.grid(row=1, column=0, columnspan=2, padx=18, pady=(0, 14), sticky="w")
+
+        self.export_data_button = PrimaryButton(
+            self.data_frame,
+            text=self.app.t("export_data"),
+            command=self.export_app_data,
+            width=140
+        )
+        self.export_data_button.grid(row=2, column=0, padx=(18, 8), pady=(0, 18), sticky="ew")
+
+        self.reset_stats_button = PrimaryButton(
+            self.data_frame,
+            text=self.app.t("reset_statistics"),
+            command=self.reset_statistics,
+            width=140
+        )
+        self.reset_stats_button.grid(row=2, column=1, padx=(8, 18), pady=(0, 18), sticky="ew")
+
         self.status_label = ctk.CTkLabel(
             self.settings_card,
             text="",
             text_color=COLORS["green"],
             font=ctk.CTkFont(size=13, weight="bold")
         )
-        self.status_label.grid(row=7, column=0, padx=20, pady=(0, 18), sticky="w")
+        self.status_label.grid(row=8, column=0, padx=20, pady=(0, 18), sticky="w")
+
+    def export_app_data(self):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_filename = f"focusflow_backup_{timestamp}.json"
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            initialfile=default_filename,
+            filetypes=[("JSON files", "*.json")]
+        )
+
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, "w", encoding="utf-8") as file:
+                json.dump(self.app.app_data, file, ensure_ascii=False, indent=4)
+
+            self.status_label.configure(
+                text=self.app.t("data_exported"),
+                text_color=COLORS["green"]
+            )
+
+        except Exception:
+            self.status_label.configure(
+                text=self.app.t("data_export_failed"),
+                text_color=COLORS["red"]
+            )
+
+        self.after(2500, lambda: self.status_label.configure(text=""))
+
+    def reset_statistics(self):
+        self.app.app_data["sessions"] = []
+        self.app.save_app_data()
+
+        if hasattr(self.app, "statistics_page"):
+            self.app.statistics_page.refresh_stats()
+
+        self.status_label.configure(
+            text=self.app.t("statistics_reset_done"),
+            text_color=COLORS["green"]
+        )
+
+        self.after(2500, lambda: self.status_label.configure(text=""))
 
     def create_setting_row(self, row, title_key, description_key):
         frame = ctk.CTkFrame(
@@ -381,4 +471,8 @@ class SettingsPage(ctk.CTkFrame):
         self.goal_desc.configure(text=self.app.t("daily_focus_goal_desc"))
         self.goal_entry.configure(placeholder_text=self.app.t("minutes_short"))
         self.save_button.configure(text=self.app.t("save"))
+        self.data_title.configure(text=self.app.t("data_management"))
+        self.data_desc.configure(text=self.app.t("data_management_desc"))
+        self.export_data_button.configure(text=self.app.t("export_data"))
+        self.reset_stats_button.configure(text=self.app.t("reset_statistics"))
     

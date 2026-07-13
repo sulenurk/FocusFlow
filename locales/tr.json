@@ -223,6 +223,14 @@
   "tooltip_complete_task": "Tamamlandı olarak işaretle",
   "tooltip_remove_task": "Kaldır",
   "tooltip_drag_task": "Sıralamak için sürükle",
-  "tooltip_delete_task": "Görevi sil",
-  "tooltip_remove_completed_task": "Sadece bu sayfadan kaldır"
+  "tooltip_delete_task": "Sil",
+  "tooltip_remove_completed_task": "Bu sayfadan kaldır",
+
+  "data_management": "Veri Yönetimi",
+  "data_management_desc": "Uygulama verilerini yedekle veya istatistik geçmişini temizle.",
+  "export_data": "Veriyi Dışa Aktar",
+  "reset_statistics": "İstatistikleri Sıfırla",
+  "data_exported": "Veriler başarıyla dışa aktarıldı.",
+  "data_export_failed": "Veriler dışa aktarılamadı.",
+  "statistics_reset_done": "İstatistik geçmişi sıfırlandı."
 }

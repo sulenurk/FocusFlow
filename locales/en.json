@@ -223,5 +223,13 @@
   "tooltip_remove_task": "Remove from page",
   "tooltip_drag_task": "Drag to reorder",
   "tooltip_delete_task": "Delete",
-  "tooltip_remove_completed_task": "Remove from this page"
+  "tooltip_remove_completed_task": "Remove from this page",
+
+  "data_management": "Data Management",
+  "data_management_desc": "Back up your app data or clear your statistics history.",
+  "export_data": "Export Data",
+  "reset_statistics": "Reset Statistics",
+  "data_exported": "Data exported successfully.",
+  "data_export_failed": "Data could not be exported.",
+  "statistics_reset_done": "Statistics history has been reset."
 }
