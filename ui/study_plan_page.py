@@ -581,6 +581,7 @@ class StudyPlanPage(ctk.CTkFrame):
             tasks = [
                 task for task in tasks
                 if task.get("status") == "completed"
+                and not task.get("hidden_from_completed", False)
             ]
 
         elif self.active_filter == "pending":
@@ -596,6 +597,7 @@ class StudyPlanPage(ctk.CTkFrame):
                 task for task in tasks
                 if task.get("id") == active_task_id
                 and task.get("status") != "completed"
+                and not task.get("hidden_from_plan", False)
             ]
 
         else:
@@ -603,7 +605,7 @@ class StudyPlanPage(ctk.CTkFrame):
                 task for task in tasks
                 if not task.get("hidden_from_plan", False)
             ]
-            
+
         if not tasks:
             self.render_empty_state()
             return
@@ -623,13 +625,16 @@ class StudyPlanPage(ctk.CTkFrame):
                 on_delete=self.delete_task,
                 on_complete=self.complete_task,
                 on_drag_start=self.drag_start,
-                on_drag_release=self.drag_release
-                )
+                on_drag_release=self.drag_release,
+                on_duplicate=self.duplicate_task,
+                on_move_to_pending=self.move_completed_task_to_pending
+            )
 
             card.grid(row=row_index, column=0, pady=7, sticky="ew")
 
     def delete_task(self, task_id):
         tasks = self.app.app_data.get("tasks", [])
+        active_task_id = self.app.app_data.get("active_task_id")
 
         task_to_delete = None
 
@@ -641,10 +646,9 @@ class StudyPlanPage(ctk.CTkFrame):
         if not task_to_delete:
             return
 
-        active_task_id = self.app.app_data.get("active_task_id")
-
         if task_to_delete.get("status") == "completed":
             task_to_delete["hidden_from_plan"] = True
+
         else:
             self.app.app_data["tasks"] = [
                 task for task in tasks
@@ -718,6 +722,8 @@ class StudyPlanPage(ctk.CTkFrame):
             if task.get("id") == task_id:
                 task["status"] = "completed"
                 task["completed_at"] = datetime.now().isoformat(timespec="seconds")
+                task["hidden_from_plan"] = False
+                task["hidden_from_completed"] = False
                 completed_task = task
                 break
 
@@ -933,38 +939,57 @@ class StudyPlanPage(ctk.CTkFrame):
         self.total_focus_card.value_label.configure(text=f"{total_focus_minutes}m")
 
     def clear_completed_tasks(self):
-        self.app.app_data["tasks"] = [
-            task for task in self.app.app_data.get("tasks", [])
-            if task.get("status") != "completed"
-        ]
-
-        existing_task_ids = {
-            task.get("id")
-            for task in self.app.app_data.get("tasks", [])
-        }
-
-        self.app.app_data["queue_task_ids"] = [
-            task_id for task_id in self.app.app_data.get("queue_task_ids", [])
-            if task_id in existing_task_ids
-        ]
-
-        active_task_id = self.app.app_data.get("active_task_id")
-
-        if active_task_id not in existing_task_ids:
-            self.app.app_data["active_task_id"] = None
-            self.app.app_data["queue_mode_active"] = False
-            self.app.app_data["queue_task_ids"] = []
+        for task in self.app.app_data.get("tasks", []):
+            if task.get("status") == "completed":
+                task["hidden_from_plan"] = True
+                task["hidden_from_completed"] = True
 
         self.app.save_app_data()
 
         if hasattr(self.app, "focus_page"):
             self.app.focus_page.load_active_task()
             self.app.focus_page.update_queue_progress()
+            self.app.focus_page.refresh_queue_progress_visibility()
 
         self.form_status_label.configure(
             text=self.app.t("completed_tasks_cleared"),
             text_color=COLORS["green"]
         )
+
+        self.after(2000, lambda: self.form_status_label.configure(text=""))
+        self.render_tasks()
+
+    def remove_task_sessions(self, task_id):
+        self.app.app_data["sessions"] = [
+            session for session in self.app.app_data.get("sessions", [])
+            if session.get("task_id") != task_id
+        ]
+
+    def move_completed_task_to_pending(self, task_id):
+        moved_task = None
+
+        for task in self.app.app_data.get("tasks", []):
+            if task.get("id") == task_id:
+                task["status"] = "pending"
+                task["hidden_from_plan"] = False
+                task["hidden_from_completed"] = False
+                task.pop("completed_at", None)
+                moved_task = task
+                break
+
+        if not moved_task:
+            return
+
+        self.remove_task_sessions(task_id)
+
+        self.app.save_app_data()
+
+        if hasattr(self.app, "statistics_page"):
+            self.app.statistics_page.refresh_stats()
+
+        if hasattr(self.app, "focus_page"):
+            self.app.focus_page.update_queue_progress()
+            self.app.focus_page.refresh_queue_progress_visibility()
 
         self.render_tasks()
 
@@ -989,6 +1014,36 @@ class StudyPlanPage(ctk.CTkFrame):
             text_color=COLORS["green"]
         )
 
+        self.render_tasks()
+    
+    def duplicate_task(self, task_id):
+        tasks = self.app.app_data.setdefault("tasks", [])
+
+        original_index = None
+        original_task = None
+
+        for index, task in enumerate(tasks):
+            if task.get("id") == task_id:
+                original_index = index
+                original_task = task
+                break
+
+        if original_task is None:
+            return
+
+        if original_task.get("status") == "completed":
+            return
+
+        duplicated_task = original_task.copy()
+        duplicated_task["id"] = f"task_{uuid.uuid4().hex[:8]}"
+        duplicated_task["status"] = "pending"
+        duplicated_task["hidden_from_plan"] = False
+        duplicated_task["hidden_from_completed"] = False
+        duplicated_task.pop("completed_at", None)
+
+        tasks.insert(original_index + 1, duplicated_task)
+
+        self.app.save_app_data()
         self.render_tasks()
 
     def refresh_subject_menu(self):
@@ -1017,6 +1072,8 @@ class TaskCard(AppCard):
         on_edit=None,
         on_delete=None,
         on_complete=None,
+        on_duplicate=None,
+        on_move_to_pending=None,
         on_drag_start=None,
         on_drag_release=None
     ):
@@ -1043,6 +1100,8 @@ class TaskCard(AppCard):
         self.on_start = on_start
         self.on_delete = on_delete
         self.on_complete = on_complete
+        self.on_duplicate = on_duplicate
+        self.on_move_to_pending = on_move_to_pending
 
         self.grid_columnconfigure(1, weight=1)
 
@@ -1115,40 +1174,51 @@ class TaskCard(AppCard):
         self.start_button = SecondaryButton(
             self,
             text=f"▶ {self.app.t('start_task')}",
-            command=lambda: self.on_start(task.get("id")),
+            command=lambda: self.on_start(task.get("id")) if self.on_start else None,
             width=92
         )
         self.start_button.grid(row=0, column=4, rowspan=2, padx=(0, 8), pady=20)
-        
+
+        if self.is_completed:
+            self.secondary_action_button = SecondaryButton(
+                self,
+                text="↺",
+                command=lambda: self.on_move_to_pending(task.get("id")) if self.on_move_to_pending else None,
+                width=44
+            )
+        else:
+            self.secondary_action_button = SecondaryButton(
+                self,
+                text="⧉",
+                command=lambda: self.on_duplicate(task.get("id")) if self.on_duplicate else None,
+                width=44
+            )
+
+        self.secondary_action_button.grid(row=0, column=5, rowspan=2, padx=(0, 8), pady=20)
+
         self.edit_button = SecondaryButton(
             self,
             text="✎",
-            command=lambda: self.on_edit(task.get("id")),
+            command=lambda: self.on_edit(task.get("id")) if self.on_edit else None,
             width=44
         )
-        self.edit_button.grid(row=0, column=5, rowspan=2, padx=(0, 8), pady=20)
-
-        if self.is_active:
-            self.edit_button.configure(
-                state="disabled",
-                fg_color=COLORS["surface"],
-                text_color=COLORS["muted"]
-            )
+        self.edit_button.grid(row=0, column=6, rowspan=2, padx=(0, 8), pady=20)
 
         self.complete_button = SecondaryButton(
             self,
             text="✓",
-            command=lambda: self.on_complete(task.get("id")),
+            command=lambda: self.on_complete(task.get("id")) if self.on_complete else None,
             width=44
         )
-        self.complete_button.grid(row=0, column=6, rowspan=2, padx=(0, 8), pady=20)
+        self.complete_button.grid(row=0, column=7, rowspan=2, padx=(0, 8), pady=20)
+
         self.delete_button = SecondaryButton(
             self,
             text="×",
-            command=lambda: self.on_delete(task.get("id")),
+            command=lambda: self.on_delete(task.get("id")) if self.on_delete else None,
             width=44
         )
-        self.delete_button.grid(row=0, column=7, rowspan=2, padx=(0, 18), pady=20)
+        self.delete_button.grid(row=0, column=8, rowspan=2, padx=(0, 8), pady=20)
 
         self.drag_handle = ctk.CTkLabel(
             self,
@@ -1157,10 +1227,38 @@ class TaskCard(AppCard):
             font=ctk.CTkFont(size=18, weight="bold"),
             cursor="hand2"
         )
-        self.drag_handle.grid(row=0, column=8, rowspan=2, padx=(0, 18), pady=20)
+        self.drag_handle.grid(row=0, column=9, rowspan=2, padx=(0, 18), pady=20)
 
-        self.drag_handle.bind("<Button-1>", lambda event: self.on_drag_start(task.get("id")))
-        self.drag_handle.bind("<ButtonRelease-1>", lambda event: self.on_drag_release(task.get("id"), event))
+        if self.on_drag_start:
+            self.drag_handle.bind(
+                "<Button-1>",
+                lambda event: self.on_drag_start(task.get("id"))
+            )
+
+        if self.on_drag_release:
+            self.drag_handle.bind(
+                "<ButtonRelease-1>",
+                lambda event: self.on_drag_release(task.get("id"), event)
+            )
+
+        if self.is_active:
+            self.start_button.configure(
+                state="disabled",
+                fg_color=COLORS["surface"],
+                text_color=COLORS["muted"]
+            )
+
+            self.edit_button.configure(
+                state="disabled",
+                fg_color=COLORS["surface"],
+                text_color=COLORS["muted"]
+            )
+
+            self.secondary_action_button.configure(
+                state="disabled",
+                fg_color=COLORS["surface"],
+                text_color=COLORS["muted"]
+            )
 
         if self.is_completed:
             self.start_button.configure(
@@ -1168,8 +1266,58 @@ class TaskCard(AppCard):
                 fg_color=COLORS["surface"],
                 text_color=COLORS["muted"]
             )
+
             self.complete_button.configure(
                 state="disabled",
                 fg_color=COLORS["surface"],
                 text_color=COLORS["muted"]
             )
+
+            self.drag_handle.configure(
+                text_color=COLORS["surface"],
+                cursor=""
+            )
+
+            self.drag_handle.unbind("<Button-1>")
+            self.drag_handle.unbind("<ButtonRelease-1>")
+
+    def set_dragging_style(self):
+        self.configure(
+            fg_color=COLORS["surface"],
+            border_width=2,
+            border_color=COLORS["primary"]
+        )
+
+        self.title.configure(text_color=COLORS["muted"])
+        self.details.configure(text_color=COLORS["muted"])
+        self.drag_handle.configure(text_color=COLORS["primary"])
+
+
+    def reset_dragging_style(self):
+        border_color = COLORS["primary"] if self.is_active else COLORS["card_border"]
+        fg_color = COLORS["surface"] if self.is_completed else COLORS["card"]
+
+        self.configure(
+            fg_color=fg_color,
+            border_width=2 if self.is_active else 1,
+            border_color=border_color
+        )
+
+        self.title.configure(
+            text_color=COLORS["muted"] if self.is_completed else COLORS["text"]
+        )
+        self.details.configure(text_color=COLORS["muted"])
+        self.drag_handle.configure(text_color=COLORS["muted"])
+
+    def handle_drag_start(self, event):
+        self.set_dragging_style()
+
+        if self.on_drag_start:
+            self.on_drag_start(self.task.get("id"))
+
+
+    def handle_drag_release(self, event):
+        self.reset_dragging_style()
+
+        if self.on_drag_release:
+            self.on_drag_release(self.task.get("id"), event)
