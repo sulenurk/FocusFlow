@@ -208,5 +208,18 @@
   "plan_completed_desc": "Sıradaki görev kalmadı. Yeni bir plan başlatabilirsin.",
   "empty_study_plan_desc": "Çalışma planında bekleyen görev yok.",
   "select_or_start_task_desc": "Bir görev seç veya çalışma planını başlat.",
-  "waiting_status": "Beklemede"
+  "waiting_status": "Beklemede",
+
+  "regular_focus_count": "Focus sayısı",
+  "regular_focus_count_desc": "Klasik Pomodoro sayfasında kaç focus oturumu çalışılacağını belirler. 0 = sınırsız.",
+  "focus_count_placeholder": "0 = sınırsız",
+  "pomodoro_cycle_completed": "Pomodoro tamamlandı",
+  "pomodoro_cycle_completed_desc": "Belirlenen focus sayısına ulaşıldı.",
+
+  "regular_focus_count": "Focus sayısı",
+  "regular_focus_count_desc": "Klasik Pomodoro sayfasında kaç focus oturumu çalışılacağını belirler. 0 = sınırsız.",
+  "focus_count_placeholder": "0 = sınırsız",
+  "unlimited": "Sınırsız",
+  "pomodoro_cycle_completed": "Pomodoro tamamlandı",
+  "pomodoro_cycle_completed_desc": "Belirlenen focus sayısına ulaşıldı."
 }
