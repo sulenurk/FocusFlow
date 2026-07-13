@@ -186,10 +186,13 @@ class SettingsPage(ctk.CTkFrame):
 
         self.goal_frame = ctk.CTkFrame(
             self.settings_card,
-            fg_color="transparent"
+            fg_color=COLORS["surface"],
+            corner_radius=18
         )
         self.goal_frame.grid(row=6, column=0, padx=20, pady=(8, 20), sticky="ew")
         self.goal_frame.grid_columnconfigure(0, weight=1)
+        self.goal_frame.grid_columnconfigure(1, weight=0)
+        self.goal_frame.grid_columnconfigure(2, weight=0)
 
         self.goal_title = ctk.CTkLabel(
             self.goal_frame,
@@ -197,7 +200,7 @@ class SettingsPage(ctk.CTkFrame):
             text_color=COLORS["text"],
             font=ctk.CTkFont(size=15, weight="bold")
         )
-        self.goal_title.grid(row=0, column=0, sticky="w")
+        self.goal_title.grid(row=0, column=0, padx=18, pady=(16, 2), sticky="w")
 
         self.goal_desc = ctk.CTkLabel(
             self.goal_frame,
@@ -205,22 +208,22 @@ class SettingsPage(ctk.CTkFrame):
             text_color=COLORS["muted"],
             font=ctk.CTkFont(size=13)
         )
-        self.goal_desc.grid(row=1, column=0, pady=(4, 0), sticky="w")
+        self.goal_desc.grid(row=1, column=0, padx=18, pady=(0, 16), sticky="w")
 
         self.goal_entry = AppEntry(
             self.goal_frame,
             placeholder_text=self.app.t("minutes_short"),
-            width=120
+            width=90
         )
-        self.goal_entry.grid(row=0, column=1, rowspan=2, padx=(20, 10), sticky="e")
+        self.goal_entry.grid(row=0, column=1, rowspan=2, padx=(12, 8), pady=18, sticky="e")
 
         self.save_button = PrimaryButton(
             self.goal_frame,
             text=self.app.t("save"),
             command=self.save_settings,
-            width=100
+            width=90
         )
-        self.save_button.grid(row=0, column=2, rowspan=2, sticky="e")
+        self.save_button.grid(row=0, column=2, rowspan=2, padx=(0, 18), pady=18, sticky="e")
 
         self.data_frame = ctk.CTkFrame(
             self.settings_card,
