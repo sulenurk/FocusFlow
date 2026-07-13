@@ -8,15 +8,16 @@
     "auto_start_focus": true,
     "sound_enabled": true,
     "daily_focus_goal_minutes": 300,
-    "regular_focus_minutes": 2,
+    "regular_focus_minutes": 1,
     "regular_short_break_minutes": 1,
-    "regular_long_break_minutes": 2,
-    "regular_long_break_after": 2,
+    "regular_long_break_minutes": 1,
+    "regular_long_break_after": 1,
     "show_queue_progress": true,
     "show_cumulative_away_time": true,
-    "week_start_day": "sunday"
+    "week_start_day": "sunday",
+    "regular_focus_count": 3
   },
-  "total_focus_seconds_today": 5040,
+  "total_focus_seconds_today": 5400,
   "tasks": [
     {
       "id": "task_fd7f8af6",
@@ -154,6 +155,66 @@
       "duration_seconds": 1500,
       "away_seconds": 0,
       "completed_at": "2026-07-13T11:28:46"
+    },
+    {
+      "id": "session_1356999d",
+      "task_id": null,
+      "task_title": "Regular Pomodoro",
+      "subject_id": "subject_other",
+      "subject_name": "Other",
+      "mode": "focus",
+      "source": "regular_pomodoro",
+      "duration_seconds": 120,
+      "away_seconds": 0,
+      "completed_at": "2026-07-13T12:29:02"
+    },
+    {
+      "id": "session_2f403e8b",
+      "task_id": null,
+      "task_title": "Regular Pomodoro",
+      "subject_id": "subject_other",
+      "subject_name": "Other",
+      "mode": "focus",
+      "source": "regular_pomodoro",
+      "duration_seconds": 60,
+      "away_seconds": 0,
+      "completed_at": "2026-07-13T12:30:47"
+    },
+    {
+      "id": "session_64783591",
+      "task_id": null,
+      "task_title": "Regular Pomodoro",
+      "subject_id": "subject_other",
+      "subject_name": "Other",
+      "mode": "focus",
+      "source": "regular_pomodoro",
+      "duration_seconds": 60,
+      "away_seconds": 0,
+      "completed_at": "2026-07-13T12:32:48"
+    },
+    {
+      "id": "session_61fc8334",
+      "task_id": null,
+      "task_title": "Regular Pomodoro",
+      "subject_id": "subject_other",
+      "subject_name": "Other",
+      "mode": "focus",
+      "source": "regular_pomodoro",
+      "duration_seconds": 60,
+      "away_seconds": 0,
+      "completed_at": "2026-07-13T12:34:49"
+    },
+    {
+      "id": "session_fde8b888",
+      "task_id": null,
+      "task_title": "Regular Pomodoro",
+      "subject_id": "subject_other",
+      "subject_name": "Other",
+      "mode": "focus",
+      "source": "regular_pomodoro",
+      "duration_seconds": 60,
+      "away_seconds": 0,
+      "completed_at": "2026-07-13T12:49:29"
     }
   ],
   "subjects": [

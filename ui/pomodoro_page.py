@@ -378,6 +378,14 @@ class PomodoroPage(ctk.CTkFrame):
         self.long_after_entry = AppEntry(self.settings_card, width=90)
         self.long_after_entry.grid(row=5, column=1, padx=20, pady=8, sticky="e")
 
+        self.focus_count_label = self.create_form_label(self.settings_card, "regular_focus_count", row=6)
+        self.focus_count_entry = AppEntry(
+            self.settings_card,
+            width=90,
+            placeholder_text=self.app.t("focus_count_placeholder")
+        )
+        self.focus_count_entry.grid(row=6, column=1, padx=20, pady=8, sticky="e")
+
         self.save_button = PrimaryButton(
             self.settings_card,
             text=self.app.t("save_pomodoro_settings"),
@@ -385,7 +393,7 @@ class PomodoroPage(ctk.CTkFrame):
             width=220
         )
         self.save_button.grid(
-            row=6,
+            row=7,
             column=0,
             columnspan=2,
             padx=20,
@@ -448,6 +456,7 @@ class PomodoroPage(ctk.CTkFrame):
         self.short_break_seconds = settings.get("regular_short_break_minutes", 5) * 60
         self.long_break_seconds = settings.get("regular_long_break_minutes", 15) * 60
         self.long_break_after = settings.get("regular_long_break_after", 4)
+        self.regular_focus_count = settings.get("regular_focus_count", 4)
 
         self.remaining_seconds = self.focus_seconds
 
@@ -464,12 +473,16 @@ class PomodoroPage(ctk.CTkFrame):
         self.long_after_entry.delete(0, "end")
         self.long_after_entry.insert(0, str(self.long_break_after))
 
+        self.focus_count_entry.delete(0, "end")
+        self.focus_count_entry.insert(0, str(self.regular_focus_count))
+
     def save_pomodoro_settings(self):
         try:
             focus_minutes = int(self.focus_entry.get().strip())
             short_break_minutes = int(self.short_break_entry.get().strip())
             long_break_minutes = int(self.long_break_entry.get().strip())
             long_break_after = int(self.long_after_entry.get().strip())
+            regular_focus_count = int(self.focus_count_entry.get().strip())
 
         except ValueError:
             self.save_status_label.configure(
@@ -483,6 +496,7 @@ class PomodoroPage(ctk.CTkFrame):
             or short_break_minutes <= 0
             or long_break_minutes <= 0
             or long_break_after <= 0
+            or regular_focus_count < 0
         ):
             self.save_status_label.configure(
                 text=self.app.t("invalid_pomodoro_settings"),
@@ -495,11 +509,13 @@ class PomodoroPage(ctk.CTkFrame):
         settings["regular_short_break_minutes"] = short_break_minutes
         settings["regular_long_break_minutes"] = long_break_minutes
         settings["regular_long_break_after"] = long_break_after
+        settings["regular_focus_count"] = regular_focus_count
 
         self.focus_seconds = focus_minutes * 60
         self.short_break_seconds = short_break_minutes * 60
         self.long_break_seconds = long_break_minutes * 60
         self.long_break_after = long_break_after
+        self.regular_focus_count = regular_focus_count
 
         if not self.is_running and not self.is_paused:
             self.current_mode = "focus"
@@ -595,23 +611,62 @@ class PomodoroPage(ctk.CTkFrame):
         self.focus_info["value"].configure(text=f"{self.focus_seconds // 60} min")
         self.short_break_info["value"].configure(text=f"{self.short_break_seconds // 60} min")
         self.long_break_info["value"].configure(text=f"{self.long_break_seconds // 60} min")
+        self.focus_count_info = self.create_session_info_row(
+            parent=self.summary_card,
+            row=5,
+            color="#A78BFA",
+            label_key="regular_focus_count",
+            value=str(self.regular_focus_count)
+        )
+
+        focus_count_text = (
+            self.app.t("unlimited")
+            if self.regular_focus_count == 0
+            else str(self.regular_focus_count)
+        )
+
+        self.focus_count_info["value"].configure(text=focus_count_text)
 
     def update_cycle_labels(self):
-        cycle_number = (self.completed_focus_count % self.long_break_after) + 1
+        regular_focus_count = getattr(self, "regular_focus_count", 4)
+
+        if regular_focus_count == 0:
+            total_text = "∞"
+        else:
+            total_text = str(regular_focus_count)
+
+        current_focus_number = self.completed_focus_count + 1
+
+        if regular_focus_count > 0:
+            current_focus_number = min(current_focus_number, regular_focus_count)
 
         self.summary_title.configure(
-            text=f"{self.app.t('current_cycle')} {cycle_number} / {self.long_break_after}"
+            text=f"{self.app.t('current_cycle')} {current_focus_number} / {total_text}"
         )
 
         self.cycle_label.configure(
-            text=f"#{cycle_number} / {self.long_break_after}"
+            text=f"#{current_focus_number} / {total_text}"
+        )
+
+        visible_dot_count = min(
+            regular_focus_count if regular_focus_count > 0 else len(self.cycle_dots),
+            len(self.cycle_dots)
         )
 
         for index, dot in enumerate(self.cycle_dots):
-            if index < cycle_number:
-                dot.configure(text_color=COLORS["primary"])
+            if regular_focus_count > 0 and index >= visible_dot_count:
+                dot.configure(text_color=COLORS["surface"])
+                continue
+
+            if regular_focus_count == 0:
+                active_index = self.completed_focus_count % len(self.cycle_dots)
+                dot.configure(
+                    text_color=COLORS["primary"] if index == active_index else COLORS["muted"]
+                )
             else:
-                dot.configure(text_color=COLORS["muted"])
+                dot.configure(
+                    text_color=COLORS["primary"] if index < self.completed_focus_count else COLORS["muted"]
+                )
 
     def update_mode_ui(self):
         if self.current_mode == "focus":
@@ -645,6 +700,17 @@ class PomodoroPage(ctk.CTkFrame):
         if self.is_running:
             self.pause_timer()
             return
+
+        if self.remaining_seconds <= 0:
+            self.current_mode = "focus"
+            self.remaining_seconds = self.focus_seconds
+            self.completed_focus_count = 0
+            self.is_paused = False
+
+            self.message_label.configure(text=self.app.t("focus_ready"))
+            self.update_timer_label()
+            self.update_mode_ui()
+            self.update_cycle_labels()
 
         if self.is_paused:
             self.is_paused = False
@@ -687,6 +753,23 @@ class PomodoroPage(ctk.CTkFrame):
         self.start_button.configure(text="▶")
         self.count_down()
 
+    def complete_pomodoro_cycle(self):
+        self.is_running = False
+        self.is_paused = False
+
+        self.current_mode = "focus"
+        self.remaining_seconds = 0
+
+        self.timer_label.configure(text="00:00")
+
+        self.message_label.configure(
+            text=self.app.t("pomodoro_cycle_completed")
+        )
+
+        self.start_button.configure(text="▶")
+        self.update_mode_ui()
+        self.update_cycle_labels()
+
     def count_down(self):
         if self.is_running and self.remaining_seconds > 0:
             self.update_timer_label()
@@ -709,6 +792,15 @@ class PomodoroPage(ctk.CTkFrame):
 
                 if hasattr(self.app, "statistics_page"):
                     self.app.statistics_page.refresh_stats()
+
+                regular_focus_count = getattr(self, "regular_focus_count", 4)
+
+                if (
+                    regular_focus_count > 0
+                    and self.completed_focus_count >= regular_focus_count
+                ):
+                    self.complete_pomodoro_cycle()
+                    return
 
                 should_long_break = (
                     self.completed_focus_count % self.long_break_after == 0
@@ -777,6 +869,9 @@ class PomodoroPage(ctk.CTkFrame):
         self.focus_info["label"].configure(text=self.app.t("focus_mode"))
         self.short_break_info["label"].configure(text=self.app.t("short_break"))
         self.long_break_info["label"].configure(text=self.app.t("long_break"))
+
+        self.focus_count_label.configure(text=self.app.t("regular_focus_count"))
+        self.focus_count_entry.configure(placeholder_text=self.app.t("focus_count_placeholder"))
 
         self.auto_title.configure(text=self.app.t("auto_start"))
 
