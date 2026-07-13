@@ -236,5 +236,10 @@
   "reset_application": "Reset Application",
   "confirm_reset_statistics": "Press again to reset statistics.",
   "confirm_reset_application": "Press again to reset the entire app. This will delete tasks, subjects, and statistics.",
-  "application_reset_done": "Application has been reset to default settings."
+  "application_reset_done": "Application has been reset to default settings.",
+
+  "import_data": "Import Data",
+  "data_imported": "Data imported successfully.",
+  "data_import_failed": "Data could not be imported. The file may not be a valid FocusFlow backup.",
+  "select_backup_file": "Select FocusFlow backup file"
 }

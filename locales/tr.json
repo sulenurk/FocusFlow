@@ -237,5 +237,10 @@
   "reset_application": "Uygulamayı Sıfırla",
   "confirm_reset_statistics": "İstatistikleri sıfırlamak için tekrar bas.",
   "confirm_reset_application": "Tüm uygulamayı sıfırlamak için tekrar bas. Bu işlem görevleri, dersleri ve istatistikleri siler.",
-  "application_reset_done": "Uygulama varsayılan ayarlara sıfırlandı."
+  "application_reset_done": "Uygulama varsayılan ayarlara sıfırlandı.",
+
+  "import_data": "Veriyi İçe Aktar",
+  "data_imported": "Veriler başarıyla içe aktarıldı.",
+  "data_import_failed": "Veriler içe aktarılamadı. Dosya geçerli bir FocusFlow yedeği olmayabilir.",
+  "select_backup_file": "FocusFlow yedek dosyasını seç"
 }
