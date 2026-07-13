@@ -19,19 +19,6 @@
   "total_focus_seconds_today": 5040,
   "tasks": [
     {
-      "id": "task_98f686f8",
-      "subject_id": "subject_3f437392",
-      "subject_name": "Chemistry",
-      "title": "Study Session",
-      "focus_minutes": 25,
-      "break_minutes": 5,
-      "priority": "medium",
-      "status": "pending",
-      "hidden_from_plan": false,
-      "completed_at": "2026-07-13T09:56:34",
-      "hidden_from_completed": true
-    },
-    {
       "id": "task_0b34d643",
       "subject_id": "subject_3f437392",
       "subject_name": "Chemistry",
@@ -79,6 +66,19 @@
       "status": "pending",
       "hidden_from_plan": false,
       "completed_at": "2026-07-10T09:08:27"
+    },
+    {
+      "id": "task_98f686f8",
+      "subject_id": "subject_3f437392",
+      "subject_name": "Chemistry",
+      "title": "Study Session",
+      "focus_minutes": 25,
+      "break_minutes": 5,
+      "priority": "medium",
+      "status": "pending",
+      "hidden_from_plan": false,
+      "completed_at": "2026-07-13T09:56:34",
+      "hidden_from_completed": true
     },
     {
       "id": "task_7ef742d8",
