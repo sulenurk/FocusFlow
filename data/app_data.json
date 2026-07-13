@@ -27,8 +27,8 @@
       "focus_minutes": 25,
       "break_minutes": 5,
       "priority": "medium",
-      "status": "pending",
-      "completed_at": "2026-07-13T11:28:44",
+      "status": "completed",
+      "completed_at": "2026-07-13T14:41:24",
       "hidden_from_plan": false,
       "hidden_from_completed": false
     },
@@ -40,10 +40,10 @@
       "focus_minutes": 25,
       "break_minutes": 5,
       "priority": "medium",
-      "status": "pending",
-      "completed_at": "2026-07-13T11:24:28",
+      "status": "completed",
+      "completed_at": "2026-07-13T14:41:22",
       "hidden_from_plan": false,
-      "hidden_from_completed": true
+      "hidden_from_completed": false
     },
     {
       "id": "task_144aa923",
@@ -53,99 +53,15 @@
       "focus_minutes": 25,
       "break_minutes": 5,
       "priority": "medium",
-      "status": "pending",
+      "status": "completed",
       "hidden_from_plan": false,
-      "completed_at": "2026-07-13T11:28:46",
+      "completed_at": "2026-07-13T14:41:18",
       "hidden_from_completed": false
     }
   ],
   "sessions": [
     {
-      "id": "session_8284cb6a",
-      "task_id": "task_3b383518",
-      "task_title": "Study Session",
-      "subject_id": "subject_d166b1f2",
-      "subject_name": "Music",
-      "mode": "focus",
-      "source": "study_plan",
-      "duration_seconds": 1500,
-      "away_seconds": 0,
-      "completed_at": "2026-07-10T01:51:16"
-    },
-    {
-      "id": "session_d7c15a39",
-      "task_id": "task_66d18fb7",
-      "task_title": "Study Session",
-      "subject_id": "subject_other",
-      "subject_name": "Other",
-      "mode": "focus",
-      "source": "study_plan",
-      "duration_seconds": 180,
-      "away_seconds": 0,
-      "completed_at": "2026-07-10T01:51:16"
-    },
-    {
-      "id": "session_d5f9442e",
-      "task_id": "task_3c5b1397",
-      "task_title": "Study Session",
-      "subject_id": "subject_54037810",
-      "subject_name": "Language",
-      "mode": "focus",
-      "source": "study_plan",
-      "duration_seconds": 1500,
-      "away_seconds": 0,
-      "completed_at": "2026-07-10T09:08:27"
-    },
-    {
-      "id": "session_8591cdaf",
-      "task_id": "task_98f686f8",
-      "task_title": "Study Session",
-      "subject_id": "subject_3f437392",
-      "subject_name": "Chemistry",
-      "mode": "focus",
-      "source": "study_plan",
-      "duration_seconds": 1500,
-      "away_seconds": 0,
-      "completed_at": "2026-07-13T09:56:34"
-    },
-    {
-      "id": "session_08f50f06",
-      "task_id": "task_0b34d643",
-      "task_title": "Study Session",
-      "subject_id": "subject_3f437392",
-      "subject_name": "Chemistry",
-      "mode": "focus",
-      "source": "study_plan",
-      "duration_seconds": 1500,
-      "away_seconds": 0,
-      "completed_at": "2026-07-13T10:08:02"
-    },
-    {
-      "id": "session_4824d9dc",
-      "task_id": "task_fd7f8af6",
-      "task_title": "Study Session",
-      "subject_id": "subject_613ac351",
-      "subject_name": "Maths",
-      "mode": "focus",
-      "source": "study_plan",
-      "duration_seconds": 1500,
-      "away_seconds": 0,
-      "completed_at": "2026-07-13T11:23:20"
-    },
-    {
-      "id": "session_f33e1b27",
-      "task_id": "task_67a913a1",
-      "task_title": "Study Session",
-      "subject_id": "subject_613ac351",
-      "subject_name": "Maths",
-      "mode": "focus",
-      "source": "study_plan",
-      "duration_seconds": 1500,
-      "away_seconds": 0,
-      "completed_at": "2026-07-13T11:23:28"
-    },
-    {
-      "id": "session_fa9921bf",
+      "id": "session_e587c7e5",
       "task_id": "task_144aa923",
       "task_title": "Study Session",
       "subject_id": "subject_8b8edc37",
@@ -154,67 +70,31 @@
       "source": "study_plan",
       "duration_seconds": 1500,
       "away_seconds": 0,
-      "completed_at": "2026-07-13T11:28:46"
+      "completed_at": "2026-07-13T14:41:18"
     },
     {
-      "id": "session_1356999d",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "subject_id": "subject_other",
-      "subject_name": "Other",
+      "id": "session_60ab36e5",
+      "task_id": "task_fd7f8af6",
+      "task_title": "Study Session",
+      "subject_id": "subject_613ac351",
+      "subject_name": "Maths",
       "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 120,
+      "source": "study_plan",
+      "duration_seconds": 1500,
       "away_seconds": 0,
-      "completed_at": "2026-07-13T12:29:02"
+      "completed_at": "2026-07-13T14:41:22"
     },
     {
-      "id": "session_2f403e8b",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "subject_id": "subject_other",
-      "subject_name": "Other",
+      "id": "session_74c41656",
+      "task_id": "task_67a913a1",
+      "task_title": "Study Session",
+      "subject_id": "subject_613ac351",
+      "subject_name": "Maths",
       "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
+      "source": "study_plan",
+      "duration_seconds": 1500,
       "away_seconds": 0,
-      "completed_at": "2026-07-13T12:30:47"
-    },
-    {
-      "id": "session_64783591",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "subject_id": "subject_other",
-      "subject_name": "Other",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-13T12:32:48"
-    },
-    {
-      "id": "session_61fc8334",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "subject_id": "subject_other",
-      "subject_name": "Other",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-13T12:34:49"
-    },
-    {
-      "id": "session_fde8b888",
-      "task_id": null,
-      "task_title": "Regular Pomodoro",
-      "subject_id": "subject_other",
-      "subject_name": "Other",
-      "mode": "focus",
-      "source": "regular_pomodoro",
-      "duration_seconds": 60,
-      "away_seconds": 0,
-      "completed_at": "2026-07-13T12:49:29"
+      "completed_at": "2026-07-13T14:41:24"
     }
   ],
   "subjects": [
