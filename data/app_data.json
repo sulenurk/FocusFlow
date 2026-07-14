@@ -1,12 +1,8 @@
 {
   "language": "en",
-  "active_task_id": "task_29055e5e",
-  "queue_mode_active": true,
-  "queue_task_ids": [
-    "task_29055e5e",
-    "task_591a758f",
-    "task_f8c2baaf"
-  ],
+  "active_task_id": null,
+  "queue_mode_active": false,
+  "queue_task_ids": [],
   "last_queue_state": null,
   "settings": {
     "auto_start_break": false,
@@ -21,72 +17,53 @@
     "show_queue_progress": true,
     "show_cumulative_away_time": true,
     "week_start_day": "sunday",
-    "appearance_mode": "light",
-    "color_palette": "amber"
+    "appearance_mode": "dark",
+    "color_palette": "pinky"
   },
   "subjects": [
     {
       "id": "subject_other",
-      "color": "#8B5CF6",
+      "color": "#A78BFA",
       "is_default": true,
       "name_key": "other_subject"
     },
     {
-      "id": "subject_f7dab8be",
-      "name": "lit",
-      "color": "#86EFAC",
+      "id": "subject_5646ae16",
+      "name": "aszd",
+      "color": "#FCD34D",
+      "is_default": false
+    },
+    {
+      "id": "subject_ae4830d9",
+      "name": "asfafe",
+      "color": "#F9A8D4",
       "is_default": false
     }
   ],
   "tasks": [
     {
-      "id": "task_d06c221a",
-      "subject_id": "subject_other",
-      "subject_name": "Other",
-      "title": "Study Session",
-      "focus_minutes": 25,
-      "break_minutes": 5,
-      "priority": "medium",
-      "status": "completed",
-      "completed_at": "2026-07-14T09:59:43",
-      "hidden_from_plan": false,
-      "hidden_from_completed": false
-    },
-    {
-      "id": "task_29055e5e",
-      "subject_id": "subject_other",
-      "subject_name": "Other",
+      "id": "task_cef0ec45",
+      "subject_id": "subject_5646ae16",
+      "subject_name": "aszd",
       "title": "Study Session",
       "focus_minutes": 25,
       "break_minutes": 5,
       "priority": "medium",
       "status": "pending",
-      "completed_at": "2026-07-14T08:51:41",
+      "completed_at": "2026-07-14T15:46:33",
       "hidden_from_plan": false,
       "hidden_from_completed": false
     },
     {
-      "id": "task_591a758f",
-      "subject_id": "subject_05133af9",
-      "subject_name": "lit",
+      "id": "task_af201d2b",
+      "subject_id": "subject_ae4830d9",
+      "subject_name": "asfafe",
       "title": "Study Session",
       "focus_minutes": 25,
       "break_minutes": 5,
       "priority": "medium",
       "status": "pending",
-      "completed_at": "2026-07-14T09:22:57",
-      "hidden_from_plan": false,
-      "hidden_from_completed": false
-    },
-    {
-      "id": "task_f8c2baaf",
-      "subject_id": "subject_bff2dec1",
-      "subject_name": "math",
-      "title": "Study Session",
-      "focus_minutes": 25,
-      "break_minutes": 5,
-      "priority": "medium",
-      "status": "pending",
+      "completed_at": "2026-07-14T15:46:34",
       "hidden_from_plan": false,
       "hidden_from_completed": false
     }
@@ -139,6 +116,30 @@
       "duration_seconds": 60,
       "away_seconds": 0,
       "completed_at": "2026-07-14T10:02:51"
+    },
+    {
+      "id": "session_5f9c2980",
+      "task_id": "task_cef0ec45",
+      "task_title": "Study Session",
+      "subject_id": "subject_5646ae16",
+      "subject_name": "aszd",
+      "mode": "focus",
+      "source": "study_plan",
+      "duration_seconds": 1500,
+      "away_seconds": 0,
+      "completed_at": "2026-07-14T15:42:00"
+    },
+    {
+      "id": "session_186c8601",
+      "task_id": "task_af201d2b",
+      "task_title": "Study Session",
+      "subject_id": "subject_ae4830d9",
+      "subject_name": "asfafe",
+      "mode": "focus",
+      "source": "study_plan",
+      "duration_seconds": 1500,
+      "away_seconds": 0,
+      "completed_at": "2026-07-14T15:42:01"
     }
   ],
   "total_focus_seconds_today": 60

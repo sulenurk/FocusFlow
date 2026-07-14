@@ -531,7 +531,7 @@ class StatisticsPage(ctk.CTkFrame):
             "#99F6E4",  # light turquoise,
             "#F9A8D4",  # pastel pink,
             "#67E8F9",  # ice blue,
-            "#CBD5E1", # light smokde
+            "#CBD5E1", # light smoke
         ]
 
         color_map = {}
@@ -1164,8 +1164,8 @@ class RecentSessionItem(ctk.CTkFrame):
             badge_text = app.t("pomodoro_badge")
             badge_color = COLORS["orange"]
         else:
-            icon_text = "📘"
-            task_title = session.get("task_title") or app.t("default_task_name")
+            icon_text = "🎯"
+            task_title = session.get("subject_name") or app.t("default_task_name")
             badge_text = app.t("study_plan_badge")
             badge_color = COLORS["primary"]
 
