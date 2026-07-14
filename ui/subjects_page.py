@@ -274,6 +274,56 @@ class SubjectsPage(ctk.CTkFrame):
         self.color_picker_label.configure(text=self.app.t("subject_color"))
         self.list_title.configure(text=self.app.t("subject_list"))
         self.render_subjects()
+            
+class ColorPickerPopup(ctk.CTkFrame):
+    def __init__(self, master, colors, current_color, on_select, **kwargs):
+        super().__init__(
+            master, 
+            fg_color=COLORS["surface_light"], 
+            border_width=1, 
+            border_color=COLORS["card_border"],
+            corner_radius=12,
+            **kwargs
+        )
+        self.on_select = on_select
+        
+        self.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        
+        for i, color in enumerate(colors):
+            row = i // 4
+            col = i % 4
+            
+            is_active = (color.lower() == current_color.lower())
+            
+            # --- GÜVENLİ KENARLIK AYARI ---
+            # "transparent" rengini kullanmak yerine, aktif değilse border_width'i 0 yapıyoruz.
+            # Böylece border_color parametresini güvenli olmayan durumlarda hiç tetiklemiyoruz.
+            if is_active:
+                border_w = 2
+                border_c = COLORS["text"]
+            else:
+                border_w = 0
+                border_c = color  # Hata vermemesi için arka plan rengiyle aynı yapıyoruz
+            # ------------------------------
+            
+            btn = ctk.CTkButton(
+                self,
+                text="",
+                width=24,
+                height=24,
+                corner_radius=12,
+                fg_color=color,
+                hover_color=color,
+                border_width=border_w,
+                border_color=border_c,
+                command=lambda c=color: self.safe_select(c)
+            )
+            btn.grid(row=row, column=col, padx=6, pady=6)
+
+    def safe_select(self, color):
+        self.place_forget()
+        self.on_select(color)
+        self.after(10, self.destroy)
 
 class SubjectItem(ctk.CTkFrame):
     def __init__(self, parent, app, subject, on_delete, on_color_change):
@@ -287,18 +337,24 @@ class SubjectItem(ctk.CTkFrame):
         self.subject = subject
         self.on_delete = on_delete
         self.on_color_change = on_color_change
+        
+        # Rengi yerel değişkende tutalım
+        self.subject_color = subject.get("color", COLORS["primary"])
+        self.active_picker = None  # Açık olan renk seçici referansı
 
+        # Grid Sütun Ağırlıkları (İsim hücresi genişleyecek şekilde)
         self.grid_columnconfigure(1, weight=1)
 
-        subject_color = subject.get("color", COLORS["primary"])
-        color_dot = ctk.CTkLabel(
+        # 1. Sol Kısımdaki Renk Yuvarlağı
+        self.color_dot = ctk.CTkLabel(
             self,
             text="●",
-            text_color=subject_color,
+            text_color=self.subject_color,
             font=ctk.CTkFont(size=18)
         )
-        color_dot.grid(row=0, column=0, padx=(18, 10), pady=16)
+        self.color_dot.grid(row=0, column=0, padx=(18, 10), pady=16)
 
+        # 2. Ders İsmi Etiketi
         if subject.get("is_default"):
             subject_name = app.t("other_subject")
         else:
@@ -307,28 +363,28 @@ class SubjectItem(ctk.CTkFrame):
         name_label = ctk.CTkLabel(
             self,
             text=subject_name,
-            #text_color=COLORS["text"],
+            text_color=COLORS["text"],
             font=ctk.CTkFont(size=15, weight="bold"),
             anchor="w"
         )
         name_label.grid(row=0, column=1, padx=0, pady=16, sticky="ew")
 
-        color_menu = ctk.CTkOptionMenu(
+        # 3. Yeni Renk Seçim Butonu (Eski dropdown yerine gelen modern buton)
+        self.color_button = ctk.CTkButton(
             self,
-            values=SUBJECT_COLOR_PALETTE,
-            command=lambda color: self.on_color_change(subject.get("id"), color),
+            text="▼",
+            font=ctk.CTkFont(size=10),
             width=92,
             height=30,
-            fg_color=subject_color,
-            button_color=subject_color,
-            button_hover_color=subject_color,
+            corner_radius=8,
+            fg_color=self.subject_color,
+            hover_color=self.subject_color,
             text_color=COLORS["white"],
-            dropdown_fg_color=COLORS["surface"],
-            #dropdown_text_color=COLORS["text"]
+            command=self.toggle_color_picker
         )
-        color_menu.set(subject_color)
-        color_menu.grid(row=0, column=2, padx=(12, 0), pady=12, sticky="e")
+        self.color_button.grid(row=0, column=2, padx=(12, 0), pady=12, sticky="e")
 
+        # 4. Sağ Kısımdaki Default Rozeti veya Silme Butonu
         if subject.get("is_default"):
             badge = ctk.CTkLabel(
                 self,
@@ -349,3 +405,38 @@ class SubjectItem(ctk.CTkFrame):
                 width=90
             )
             delete_button.grid(row=0, column=3, padx=(12, 18), pady=12, sticky="e")
+
+    def toggle_color_picker(self):
+        """Renk seçici paneli açar veya zaten açıksa kapatır."""
+        # Eğer aktif bir panel zaten varsa yok edelim
+        if self.active_picker and self.active_picker.winfo_exists():
+            self.active_picker.destroy()
+            self.active_picker = None
+            return
+
+        # Sahibi (master) yine self.app kalıyor (Böylece kesilmiyor)
+        self.active_picker = ColorPickerPopup(
+            master=self.app,
+            colors=SUBJECT_COLOR_PALETTE,
+            current_color=self.subject_color,
+            on_select=self.handle_color_selection
+        )
+        
+        # Matematiksel hesaplamaların HEPSİNİ siliyoruz ve işi Tkinter'a bırakıyoruz:
+        self.active_picker.place(
+            in_=self.color_button, # Konum referansı olarak bu butonu al diyoruz!
+            relx=1.0,              # Butonun sağ kenarına hizala
+            rely=1.1,              # Butonun hemen altına yerleştir (yüksekliğin %110'u kadar aşağıda)
+            anchor="ne"            # Sağ-üst köşesinden tuttur
+        )
+
+    def handle_color_selection(self, selected_color):
+        """Kullanıcı bir renge tıkladığında çalışacak olan ana mantık."""
+        self.subject_color = selected_color
+        
+        # UI üzerindeki renkleri anlık olarak güncelle
+        self.color_button.configure(fg_color=selected_color, hover_color=selected_color)
+        self.color_dot.configure(text_color=selected_color)
+        
+        # Ana uygulamanın veritabanı/state güncellemesini tetikle
+        self.on_color_change(self.subject.get("id"), selected_color)

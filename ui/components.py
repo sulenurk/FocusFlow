@@ -62,7 +62,7 @@ class SecondaryButton(ctk.CTkButton):
             height=38,
             corner_radius=14,
             fg_color=COLORS["card_soft"],
-            hover_color="#334155",
+            hover_color=COLORS["primary_soft"],
             text_color=COLORS["text"],
             font=ctk.CTkFont(size=13, weight="bold"),
             **kwargs
