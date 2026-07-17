@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import json
+import pygame
 import os
 from datetime import datetime
 from tkinter import filedialog
@@ -51,6 +52,24 @@ class SettingsPage(ctk.CTkFrame):
             anchor="w"
         )
         self.subtitle_label.grid(row=1, column=0, pady=(6, 0), sticky="w")
+
+    def preview_and_save_alarm(self, selected_name):
+        # 1. Ses Çalma (Önizleme)
+        pygame.mixer.music.stop()
+        sound_path = self.alarm_sounds.get(selected_name)
+        
+        if sound_path and os.path.exists(sound_path):
+            pygame.mixer.music.load(sound_path)
+            pygame.mixer.music.play()
+            # 4 saniye sonra sesi durdur
+            self.after(4000, pygame.mixer.music.stop)
+        
+        # 2. Kaydetme
+        settings = self.get_settings()
+        settings["selected_alarm"] = selected_name
+        self.app.save_app_data()
+        self.status_label.configure(text=f"{selected_name} seçildi.", text_color=COLORS["green"])
+        self.after(2000, lambda: self.status_label.configure(text=""))
 
     def import_app_data(self):
         self.pending_reset_action = None
@@ -245,8 +264,37 @@ class SettingsPage(ctk.CTkFrame):
         )
         self.sound_switch.grid(row=0, column=1, rowspan=2, padx=20, pady=18)
 
+        self.alarm_sounds = {
+            "Birdy": "sounds/alarm1.mp3",
+            "Buzz": "sounds/alarm2.mp3",
+            "Classic": "sounds/alarm3.mp3",
+            "Digital": "sounds/alarm4.mp3",
+            "Zen": "sounds/alarm5.mp3",
+            "Chime": "sounds/alarm6.mp3"
+        }
+
+        # Alarm Seçim Frame'i
+        self.alarm_frame = ctk.CTkFrame(self.settings_card, fg_color=COLORS["surface"], corner_radius=18)
+        self.alarm_frame.grid(row=3, column=0, padx=20, pady=(8, 8), sticky="ew")
+        self.alarm_frame.grid_columnconfigure(0, weight=1)
+
+        self.alarm_label = ctk.CTkLabel(self.alarm_frame, text="Alarm Sesi", text_color=COLORS["text"], font=ctk.CTkFont(size=15, weight="bold"))
+        self.alarm_label.grid(row=0, column=0, padx=18, pady=(16, 2), sticky="w")
+
+        self.alarm_desc = ctk.CTkLabel(self.alarm_frame, text="Bildirimler için ses seçin", text_color=COLORS["muted"], font=ctk.CTkFont(size=13))
+        self.alarm_desc.grid(row=1, column=0, padx=18, pady=(0, 16), sticky="w")
+
+        self.alarm_menu = ctk.CTkOptionMenu(
+            self.alarm_frame, values=list(self.alarm_sounds.keys()), width=160, height=40,
+            fg_color=COLORS["primary"], button_color=COLORS["primary"],
+            button_hover_color=COLORS["primary_hover"], text_color=COLORS["white"],
+            dropdown_fg_color=COLORS["surface"], dropdown_text_color=COLORS["text"], 
+            command=self.preview_and_save_alarm
+        )
+        self.alarm_menu.grid(row=0, column=1, rowspan=2, padx=20, pady=18, sticky="e")
+
         self.queue_progress_frame = self.create_setting_row(
-            row=3,
+            row=4,
             title_key="show_queue_progress",
             description_key="show_queue_progress_desc"
         )
@@ -262,7 +310,7 @@ class SettingsPage(ctk.CTkFrame):
         self.queue_progress_switch.grid(row=0, column=1, rowspan=2, padx=20, pady=18)
 
         self.cumulative_away_frame = self.create_setting_row(
-            row=4,
+            row=5,
             title_key="show_cumulative_away_time",
             description_key="show_cumulative_away_time_desc"
         )
@@ -282,7 +330,7 @@ class SettingsPage(ctk.CTkFrame):
             fg_color=COLORS["surface"],
             corner_radius=18
         )
-        self.palette_frame.grid(row=5, column=0, padx=20, pady=(8, 8), sticky="ew")
+        self.palette_frame.grid(row=6, column=0, padx=20, pady=(8, 8), sticky="ew")
         self.palette_frame.grid_columnconfigure(0, weight=1)
 
         self.palette_title = ctk.CTkLabel(
@@ -310,7 +358,7 @@ class SettingsPage(ctk.CTkFrame):
             fg_color=COLORS["surface"],
             corner_radius=18
         )
-        self.week_start_frame.grid(row=6, column=0, padx=20, pady=(8, 8), sticky="ew")
+        self.week_start_frame.grid(row=7, column=0, padx=20, pady=(8, 8), sticky="ew")
         self.week_start_frame.grid_columnconfigure(0, weight=1)
 
         self.week_start_label = ctk.CTkLabel(
@@ -337,14 +385,10 @@ class SettingsPage(ctk.CTkFrame):
                 self.app.t("week_start_monday"),
                 self.app.t("week_start_sunday")
             ],
-            width=220,
-            height=40,
-            fg_color=COLORS["input"],
-            button_color=COLORS["primary"],
-            button_hover_color=COLORS["primary_hover"],
-            text_color=COLORS["input_text"],
-            dropdown_fg_color=COLORS["surface"],
-            dropdown_text_color=COLORS["text"],
+            width=160, height=40,
+            fg_color=COLORS["primary"], button_color=COLORS["primary"],
+            button_hover_color=COLORS["primary_hover"], text_color=COLORS["white"],
+            dropdown_fg_color=COLORS["surface"], dropdown_text_color=COLORS["text"],
             command=self.change_week_start_day
         )
         self.week_start_menu.grid(row=0, column=1, rowspan=2, padx=20, pady=18, sticky="e")
@@ -354,7 +398,7 @@ class SettingsPage(ctk.CTkFrame):
             fg_color=COLORS["surface"],
             corner_radius=18
         )
-        self.goal_frame.grid(row=7, column=0, padx=20, pady=(8, 8), sticky="ew")
+        self.goal_frame.grid(row=8, column=0, padx=20, pady=(8, 8), sticky="ew")
         self.goal_frame.grid_columnconfigure(0, weight=1)
         self.goal_frame.grid_columnconfigure(1, weight=0)
         self.goal_frame.grid_columnconfigure(2, weight=0)
@@ -395,7 +439,7 @@ class SettingsPage(ctk.CTkFrame):
             fg_color=COLORS["surface"],
             corner_radius=18
         )
-        self.data_frame.grid(row=8, column=0, padx=20, pady=(8, 20), sticky="ew")
+        self.data_frame.grid(row=9, column=0, padx=20, pady=(8, 20), sticky="ew")
         self.data_frame.grid_columnconfigure(0, weight=1)
         self.data_frame.grid_columnconfigure(1, weight=1)
 
@@ -454,7 +498,7 @@ class SettingsPage(ctk.CTkFrame):
             text="",
             text_color=COLORS["green"],
             font=ctk.CTkFont(size=13, weight="bold"))
-        self.status_label.grid(row=9, column=0, padx=20, pady=(0, 18), sticky="w")
+        self.status_label.grid(row=10, column=0, padx=20, pady=(0, 18), sticky="w")
 
     def export_app_data(self):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -665,6 +709,9 @@ class SettingsPage(ctk.CTkFrame):
             self.sound_switch.select()
         else:
             self.sound_switch.deselect()
+
+        selected_alarm = settings.get("selected_alarm", "Birdy")
+        self.alarm_menu.set(selected_alarm)
         
         if settings.get("show_queue_progress", True):
             self.queue_progress_switch.select()

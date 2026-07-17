@@ -1,5 +1,7 @@
 import json
 import customtkinter as ctk
+import pygame
+import os
 from pathlib import Path
 from ui.pomodoro_page import PomodoroPage
 from ui.statistics_page import StatisticsPage
@@ -34,7 +36,9 @@ class FocusFlowApp(ctk.CTk):
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
-
+        
+        pygame.mixer.init()
+        
         self.create_sidebar()
         self.create_pages()
 
@@ -188,6 +192,23 @@ class FocusFlowApp(ctk.CTk):
             settings.get("color_palette", "purple"),
             settings.get("appearance_mode", "dark")
         )
+
+    def stop_pomodoro_alarm_on_navigation(self):
+        if hasattr(self, "pomodoro_page"):
+            self.pomodoro_page.stop_alarm_on_page_leave()
+
+    def stop_alarm(self):
+        if hasattr(self, "alarm_sound"):
+            try:
+                self.alarm_sound.stop()
+            except Exception:
+                pass
+
+        if hasattr(self, "alarm_channel") and self.alarm_channel:
+            try:
+                self.alarm_channel.stop()
+            except Exception:
+                pass
 
     def apply_theme(self, palette_key=None, appearance_mode=None):
         settings = self.app_data.setdefault("settings", {})
@@ -456,6 +477,7 @@ class FocusFlowApp(ctk.CTk):
         self.sound_button.configure(text="🔔" if sound_on else "🔕")
 
     def show_focus_page(self):
+        self.stop_pomodoro_alarm_on_navigation()
         self.active_page = "focus"
         self.update_sidebar_active_state()
         self.focus_page.tkraise()
@@ -465,6 +487,7 @@ class FocusFlowApp(ctk.CTk):
             self.focus_page.refresh_texts()
 
     def show_todo_page(self):
+        self.stop_pomodoro_alarm_on_navigation()
         self.active_page = "study"
         self.update_sidebar_active_state()
 
@@ -485,6 +508,7 @@ class FocusFlowApp(ctk.CTk):
             self.pomodoro_page.update_auto_start_info()
 
     def show_subjects_page(self):
+        self.stop_pomodoro_alarm_on_navigation()
         self.active_page = "subjects"
         self.update_sidebar_active_state()
         self.subjects_page.tkraise()
@@ -496,12 +520,14 @@ class FocusFlowApp(ctk.CTk):
             self.subjects_page.focus_subject_entry()
 
     def show_statistics_page(self):
+        self.stop_pomodoro_alarm_on_navigation()
         self.active_page = "statistics"
         self.update_sidebar_active_state()
         self.statistics_page.refresh_stats()
         self.statistics_page.tkraise()
 
     def show_settings_page(self):
+        self.stop_pomodoro_alarm_on_navigation()
         self.active_page = "settings"
         self.update_sidebar_active_state()
         self.settings_page.tkraise()
