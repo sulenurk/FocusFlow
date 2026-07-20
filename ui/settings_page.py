@@ -2,6 +2,9 @@ import customtkinter as ctk
 import json
 from datetime import datetime
 from tkinter import filedialog
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
 from ui.theme import COLORS, THEME_PALETTES
 from ui.components import AppCard, PageTitle, PageSubtitle, PrimaryButton, AppEntry
 from core.alarm_sounds import ALARM_SOUNDS
@@ -361,7 +364,7 @@ class SettingsPage(ctk.CTkFrame):
         self.queue_progress_switch.grid(row=0, column=1, rowspan=2, padx=20, pady=18)
 
         self.cumulative_away_frame = self.create_setting_row(
-            row=5,
+            row=6,
             title_key="show_cumulative_away_time",
             description_key="show_cumulative_away_time_desc"
         )
@@ -471,22 +474,20 @@ class SettingsPage(ctk.CTkFrame):
         )
         self.data_desc.grid(row=1, column=0, columnspan=2, padx=18, pady=(0, 14), sticky="w")
 
-        self.export_data_button = PrimaryButton(
+        self.export_history_button = PrimaryButton(
             self.data_frame,
-            text=self.app.t("export_data"),
-            command=self.export_app_data,
+            text=self.app.t("export_study_history"),
+            command=self.export_study_history_excel,
             width=140
         )
-        self.export_data_button.grid(row=2, column=0, padx=(18, 8), pady=(0, 10), sticky="ew")
-
-        self.import_data_button = PrimaryButton(
-            self.data_frame,
-            text=self.app.t("import_data"),
-            command=self.import_app_data,
-            width=140
+        self.export_history_button.grid(
+            row=2,
+            column=0,
+            columnspan=2,
+            padx=18,
+            pady=(0, 10),
+            sticky="ew"
         )
-        self.import_data_button.grid(row=2, column=1, padx=(8, 18), pady=(0, 10), sticky="ew")
-
         self.reset_stats_button = PrimaryButton(
             self.data_frame,
             text=self.app.t("reset_statistics"),
@@ -502,13 +503,146 @@ class SettingsPage(ctk.CTkFrame):
             width=140
         )
         self.reset_app_button.grid(row=3, column=1, padx=(8, 18), pady=(0, 18), sticky="ew")
-        
+
+        self.export_data_button = PrimaryButton(
+            self.data_frame,
+            text=self.app.t("export_data"),
+            command=self.export_app_data,
+            width=140
+        )
+        self.export_data_button.grid(row=4, column=0, padx=(18, 8), pady=(0, 10), sticky="ew")
+
+        self.import_data_button = PrimaryButton(
+            self.data_frame,
+            text=self.app.t("import_data"),
+            command=self.import_app_data,
+            width=140
+        )
+        self.import_data_button.grid(row=4, column=1, padx=(8, 18), pady=(0, 10), sticky="ew")
+
         self.status_label = ctk.CTkLabel(
             self.settings_card,
             text="",
             text_color=COLORS["green"],
             font=ctk.CTkFont(size=13, weight="bold"))
         self.status_label.grid(row=10, column=0, padx=20, pady=(0, 18), sticky="w")
+
+    def export_study_history_excel(self):
+        sessions = self.app.app_data.get("sessions", [])
+
+        if not sessions:
+            self.status_label.configure(
+                text=self.app.t("no_study_history"),
+                text_color=COLORS["orange"]
+            )
+            self.after(3000, lambda: self.status_label.configure(text=""))
+            return
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_filename = f"focusflow_study_history_{timestamp}.xlsx"
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            initialfile=default_filename,
+            filetypes=[("Excel files", "*.xlsx")]
+        )
+
+        if not file_path:
+            return
+
+        try:
+            workbook = Workbook()
+            worksheet = workbook.active
+            worksheet.title = "Study History"
+
+            headers = [
+                "Date",
+                "Time",
+                "Task",
+                "Subject",
+                "Source",
+                "Mode",
+                "Focus Minutes",
+                "Away Minutes",
+                "Completed At",
+                "Session ID"
+            ]
+            worksheet.append(headers)
+
+            header_fill = PatternFill(fill_type="solid", fgColor="6D5DF6")
+            header_font = Font(color="FFFFFF", bold=True)
+
+            for cell in worksheet[1]:
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+
+            sorted_sessions = sorted(
+                sessions,
+                key=lambda session: session.get("completed_at", "")
+            )
+
+            for session in sorted_sessions:
+                completed_at = session.get("completed_at", "")
+                date_text = ""
+                time_text = ""
+
+                if completed_at:
+                    try:
+                        parsed_datetime = datetime.fromisoformat(completed_at)
+                        date_text = parsed_datetime.strftime("%Y-%m-%d")
+                        time_text = parsed_datetime.strftime("%H:%M:%S")
+                    except (TypeError, ValueError):
+                        date_text = str(completed_at)
+
+                duration_seconds = session.get("duration_seconds", 0) or 0
+                away_seconds = session.get("away_seconds", 0) or 0
+
+                task_title = session.get("task_title")
+                if not task_title:
+                    if session.get("source") == "regular_pomodoro":
+                        task_title = self.app.t("regular_pomodoro_session")
+                    else:
+                        task_title = self.app.t("untitled_task")
+
+                worksheet.append([
+                    date_text,
+                    time_text,
+                    task_title,
+                    session.get("subject_name", ""),
+                    session.get("source", ""),
+                    session.get("mode", ""),
+                    round(duration_seconds / 60, 2),
+                    round(away_seconds / 60, 2),
+                    completed_at,
+                    session.get("id", "")
+                ])
+
+            worksheet.freeze_panes = "A2"
+            worksheet.auto_filter.ref = worksheet.dimensions
+
+            column_widths = {1: 13, 2: 11, 3: 32, 4: 24, 5: 20, 6: 14, 7: 16, 8: 14, 9: 22, 10: 22}
+            for column_index, width in column_widths.items():
+                worksheet.column_dimensions[get_column_letter(column_index)].width = width
+
+            for row in worksheet.iter_rows(min_row=2):
+                for cell in row:
+                    cell.alignment = Alignment(vertical="top", wrap_text=True)
+
+            workbook.save(file_path)
+            self.status_label.configure(
+                text=self.app.t("study_history_exported"),
+                text_color=COLORS["green"]
+            )
+
+        except Exception as error:
+            print(f"[EXCEL EXPORT ERROR] {error}")
+            self.status_label.configure(
+                text=self.app.t("study_history_export_failed"),
+                text_color=COLORS["red"]
+            )
+
+        self.after(3000, lambda: self.status_label.configure(text=""))
 
     def export_app_data(self):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -836,5 +970,6 @@ class SettingsPage(ctk.CTkFrame):
         self.data_desc.configure(text=self.app.t("data_management_desc"))
         self.export_data_button.configure(text=self.app.t("export_data"))
         self.import_data_button.configure(text=self.app.t("import_data"))
+        self.export_history_button.configure(text=self.app.t("export_study_history"))
         self.reset_stats_button.configure(text=self.app.t("reset_statistics"))
         self.reset_app_button.configure(text=self.app.t("reset_application"))
