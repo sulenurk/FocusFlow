@@ -22,7 +22,7 @@ ALARM_SOUNDS = {
         "file": "assets/sounds/buzz.mp3"
     },
     "dans": {
-        "name_key": "alarm_dans",
+        "name_key": "alarm_dance",
         "file": "assets/sounds/dans.mp3"
     },
     "galaxy": {

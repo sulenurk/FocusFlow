@@ -1425,7 +1425,6 @@ class FocusPage(ctk.CTkFrame):
             else:
                 self.start_button.configure(text=self.app.t("start"))
 
-        self.pause_button.configure(text=self.app.t("pause"))
         self.reset_button.configure(text=self.app.t("reset"))
 
         if not self.is_running and not self.is_paused:
