@@ -1,7 +1,6 @@
 from pathlib import Path
 
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+from core.path_utils import resource_path
 
 
 ALARM_SOUNDS = {
@@ -31,7 +30,6 @@ ALARM_SOUNDS = {
     },
 }
 
-
 def get_alarm_path(alarm_id):
     alarm_data = ALARM_SOUNDS.get(alarm_id)
 
@@ -43,4 +41,4 @@ def get_alarm_path(alarm_id):
     if not relative_path:
         return None
 
-    return PROJECT_ROOT / relative_path
+    return Path(resource_path(relative_path))
