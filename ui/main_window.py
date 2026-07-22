@@ -2,6 +2,7 @@ import json
 import customtkinter as ctk
 import pygame
 import os
+from core.path_utils import resource_path, user_data_path
 from pathlib import Path
 from ui.pomodoro_page import PomodoroPage
 from ui.statistics_page import StatisticsPage
@@ -16,9 +17,14 @@ class FocusFlowApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         
-        self.base_path = Path(__file__).resolve().parent.parent
-        self.data_path = self.base_path / "data" / "app_data.json"
+        app_data_dir = os.path.join(
+            os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
+            "FocusFlow"
+        )
 
+        os.makedirs(app_data_dir, exist_ok=True)
+
+        self.data_path = user_data_path("app_data.json")
         self.app_data = self.load_app_data()
         self.ensure_app_data_defaults()
         self.apply_saved_theme()
@@ -133,18 +139,65 @@ class FocusFlowApp(ctk.CTk):
         self.save_app_data()
 
     def load_app_data(self):
-        with open(self.data_path, "r", encoding="utf-8") as file:
-            return json.load(file)
+        os.makedirs(
+            os.path.dirname(self.data_path),
+            exist_ok=True
+        )
+
+        default_data = {
+            "settings": {},
+            "tasks": [],
+            "sessions": [],
+            "queue_task_ids": [],
+            "active_task_id": None
+        }
+
+        if not os.path.exists(self.data_path):
+            with open(self.data_path, "w", encoding="utf-8") as file:
+                json.dump(
+                    default_data,
+                    file,
+                    ensure_ascii=False,
+                    indent=4
+                )
+
+            return default_data
+
+        try:
+            with open(self.data_path, "r", encoding="utf-8") as file:
+                return json.load(file)
+
+        except (json.JSONDecodeError, OSError) as error:
+            print(f"[DATA ERROR] Could not load app data: {error}")
+            return default_data
 
     def save_app_data(self):
-        with open(self.data_path, "w", encoding="utf-8") as file:
-            json.dump(self.app_data, file, indent=2, ensure_ascii=False)
+        os.makedirs(
+            os.path.dirname(self.data_path),
+            exist_ok=True
+        )
 
+        try:
+            with open(self.data_path, "w", encoding="utf-8") as file:
+                json.dump(
+                    self.app_data,
+                    file,
+                    ensure_ascii=False,
+                    indent=4
+                )
+
+        except OSError as error:
+            print(f"[DATA ERROR] Could not save app data: {error}")
     def load_translations(self):
         translations = {}
 
         for language in self.get_language_options().keys():
-            file_path = os.path.join("locales", f"{language}.json")
+            file_path = resource_path(
+                os.path.join(
+                    "locales",
+                    f"{language}.json"
+                )
+            )
 
             try:
                 with open(file_path, "r", encoding="utf-8") as file:
