@@ -507,17 +507,26 @@ class PomodoroPage(ctk.CTkFrame):
 
     def create_timer_card(self):
         self.timer_card = AppCard(self.content)
-        self.timer_card.grid(row=0, column=0, padx=(0, 16), sticky="nsew")
+        self.timer_card.grid(
+            row=0,
+            column=0,
+            padx=(0, 16),
+            sticky="nsew"
+        )
+
         self.timer_card.grid_columnconfigure(0, weight=1)
-        self.timer_card.grid_rowconfigure(1, weight=1)
 
         self.ring_frame = ctk.CTkFrame(
             self.timer_card,
             fg_color=COLORS["card"],
             width=420,
-            height=420
+            height=320
         )
-        self.ring_frame.grid(row=0, column=0, pady=(34, 8))
+        self.ring_frame.grid(
+            row=0,
+            column=0,
+            pady=(34, 0)
+        )
         self.ring_frame.grid_propagate(False)
 
         self.circular_timer = CircularTimer(self.ring_frame, size=390)
@@ -547,6 +556,45 @@ class PomodoroPage(ctk.CTkFrame):
         )
         self.cycle_label.place(relx=0.5, rely=0.68, anchor="center")
 
+        self.alarm_button_frame = ctk.CTkFrame(
+            self.timer_card,
+            fg_color="transparent",
+            height=50
+        )
+
+        self.alarm_button_frame.grid(
+            row=1,
+            column=0,
+            sticky="ew",
+            pady=(8, 14)
+        )
+
+        self.alarm_button_frame.grid_columnconfigure(0, weight=1)
+        self.alarm_button_frame.grid_propagate(False)
+
+        self.stop_alarm_button = ctk.CTkButton(
+            self.alarm_button_frame,
+            text=f"🔕 {self.app.t('stop_alarm')}",
+            command=self.dismiss_alarm,
+            width=190,
+            height=42,
+            corner_radius=14,
+            fg_color=COLORS["red"],
+            hover_color="#DC2626",
+            text_color=COLORS["white"],
+            font=ctk.CTkFont(
+                size=14,
+                weight="bold"
+            )
+        )
+
+        self.stop_alarm_button.grid(
+            row=0,
+            column=0
+        )
+
+        self.stop_alarm_button.grid_remove()
+
         self.button_frame = ctk.CTkFrame(
             self.timer_card,
             fg_color="transparent"
@@ -556,7 +604,11 @@ class PomodoroPage(ctk.CTkFrame):
             (0,1,2,3),
             weight=1
         )
-        self.button_frame.grid(row=1, column=0, pady=(8, 22))
+        self.button_frame.grid(
+            row=2,
+            column=0,
+            pady=(24, 0)
+        )
 
         self.start_button = ctk.CTkButton(
             self.button_frame,
@@ -641,32 +693,11 @@ class PomodoroPage(ctk.CTkFrame):
             text_color=COLORS["orange"],
             font=ctk.CTkFont(size=15, weight="bold")
         )
-        self.message_label.grid(row=2, column=0, pady=(0, 26))
-
-        self.stop_alarm_button = ctk.CTkButton(
-            self.timer_card,
-            text=f"🔕 {self.app.t('stop_alarm')}",
-            command=self.dismiss_alarm,
-            width=190,
-            height=42,
-            corner_radius=14,
-            fg_color=COLORS["red"],
-            hover_color="#DC2626",
-            text_color=COLORS["white"],
-            font=ctk.CTkFont(
-                size=14,
-                weight="bold"
-            )
-        )
-
-        self.stop_alarm_button.grid(
+        self.message_label.grid(
             row=3,
             column=0,
-            padx=24,
             pady=(0, 26)
         )
-
-        self.stop_alarm_button.grid_remove()
 
     def create_settings_panel(self):
         self.side_panel = ctk.CTkFrame(
