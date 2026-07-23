@@ -1,6 +1,6 @@
-from ui.main_window import FocusFlowApp
+from ui.main_window import NagomiDeskApp
 
 
 if __name__ == "__main__":
-    app = FocusFlowApp()
+    app = NagomiDeskApp()
     app.mainloop()

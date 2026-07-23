@@ -21,7 +21,7 @@ def resource_path(relative_path):
 def user_data_path(filename):
     """
     Kullanıcının değiştirilebilir verilerini
-    AppData/Local/FocusFlow içinde saklar.
+    AppData/Local/NagomiDesk içinde saklar.
     """
 
     base_path = os.path.join(
@@ -29,7 +29,7 @@ def user_data_path(filename):
             "LOCALAPPDATA",
             os.path.expanduser("~")
         ),
-        "FocusFlow"
+        "NagomiDesk"
     )
 
     os.makedirs(base_path, exist_ok=True)

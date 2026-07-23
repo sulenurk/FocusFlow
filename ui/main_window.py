@@ -13,13 +13,13 @@ from ui.settings_page import SettingsPage
 from ui.theme import COLORS, SUBJECT_COLOR_PALETTE, apply_color_palette
 from core.alarm_sounds import ALARM_SOUNDS, get_alarm_path
 
-class FocusFlowApp(ctk.CTk):
+class NagomiDeskApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         
         app_data_dir = os.path.join(
             os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
-            "FocusFlow"
+            "NagomiDesk"
         )
 
         os.makedirs(app_data_dir, exist_ok=True)

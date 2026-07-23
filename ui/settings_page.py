@@ -129,7 +129,7 @@ class SettingsPage(ctk.CTkFrame):
 
         for key in required_keys:
             if key not in imported_data:
-                raise ValueError("Missing FocusFlow data keys")
+                raise ValueError("Missing NagomiDesk data keys")
 
         if not isinstance(imported_data.get("settings"), dict):
             raise ValueError("Invalid settings format")
@@ -539,7 +539,7 @@ class SettingsPage(ctk.CTkFrame):
             return
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        default_filename = f"focusflow_study_history_{timestamp}.xlsx"
+        default_filename = f"NagomiDesk_study_history_{timestamp}.xlsx"
 
         file_path = filedialog.asksaveasfilename(
             defaultextension=".xlsx",
@@ -646,7 +646,7 @@ class SettingsPage(ctk.CTkFrame):
 
     def export_app_data(self):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        default_filename = f"focusflow_backup_{timestamp}.json"
+        default_filename = f"NagomiDesk_backup_{timestamp}.json"
 
         file_path = filedialog.asksaveasfilename(
             defaultextension=".json",
